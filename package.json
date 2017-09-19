@@ -21,7 +21,7 @@
   "homepage": "https://github.com/tomk79/node-command-queue#readme",
   "dependencies": {
     "es6-promise": "^4.1.0",
-    "iterate79": "^1.0.0",
+    "iterate79": "file:submodules/node-iterate79",
     "utils79": "0.0.4"
   },
   "devDependencies": {
