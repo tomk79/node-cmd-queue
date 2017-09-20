@@ -7,6 +7,7 @@
     "start": "node ./tests/app/server/server.js;",
     "up": "node ./tests/app/server/server.js;",
     "preview": "gulp preview;",
+    "submodules-update": "npm install file:submodules/node-iterate79; gulp;",
     "test": "mocha --ui tdd ./tests/"
   },
   "repository": {
