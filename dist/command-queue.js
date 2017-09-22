@@ -13664,20 +13664,30 @@ window.CommandQueue = function(elm, options){
 					cmdAry,
 					function(data){
 						console.log(data);
+						var $elm = $(elm);
 						$elm.append( $('<div>')
 							.text(data)
-							.css({'white-space': 'pre'})
+							.addClass('command-queue__row')
 						);
+						rows.push(data);
+
+						while(1){
+							var rowSize = rows.length;
+							if(rowSize <= maxRows){
+								break;
+							}
+							$elm.find('>div.command-queue__row').get(0).remove();
+							rows.shift();
+						}
 					},
 					function(){
-						console.log('done.');
-						setTimeout(function(){
-							done();
-						}, 1000);
+						done();
 					}
 				);
 			}
-		});
+		}),
+		maxRows = 400, // 表示する最大行数
+		rows = [];
 
 	var $elm = $(elm);
 	$elm.addClass('command-queue');

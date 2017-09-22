@@ -4,3 +4,7 @@
   position: relative;
   min-height: 200px;
   background-color: #f9f9f9; }
+  .command-queue__row {
+    white-space: pre; }
+    .command-queue__row:hover {
+      background-color: #f3f3f3; }

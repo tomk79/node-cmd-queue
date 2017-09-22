@@ -4,4 +4,11 @@
     position: relative;
     min-height: 200px;
     background-color: #f9f9f9;
+
+    &__row{
+        white-space: pre;
+        &:hover{
+            background-color: #f3f3f3;
+        }
+    }
 }
