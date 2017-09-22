@@ -1,1 +1,1 @@
-.command-queue{display:block}
+.command-queue{display:block;overflow:auto;position:relative;min-height:200px;background-color:#f9f9f9}

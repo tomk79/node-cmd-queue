@@ -11,9 +11,12 @@ var express = require('express'),
 var server = require('http').Server(app);
 
 app.use( require('body-parser')({"limit": "1024mb"}) );
-app.use( '/common/', express.static( path.resolve(__dirname, '../../../dist/') ) );
+app.use( '/common/dist/', express.static( path.resolve(__dirname, '../../../dist/') ) );
+app.use( '/common/jquery/', express.static( path.resolve(__dirname, '../../../node_modules/jquery/dist/') ) );
 
 app.use( express.static( __dirname+'/../client/' ) );
+
+app.use( '/apis/commandQueue', require('./apis/command-queue.js')({}) );
 
 // 3000番ポートでLISTEN状態にする
 server.listen( 3000, function(){
