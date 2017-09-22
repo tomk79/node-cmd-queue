@@ -10,22 +10,25 @@ window.CommandQueue = function(elm, options){
 				options.gpiBridge(
 					cmdAry,
 					function(data){
-						console.log(data);
+						// console.log(data);
 						var $elm = $(elm);
-						$elm.append( $('<div>')
-							.text(data)
-							.addClass('command-queue__row')
-						);
-						rows.push(data);
 
 						while(1){
-							var rowSize = rows.length;
-							if(rowSize <= maxRows){
+							var matched = data.match(/^([\s\S]*?)(\r\n|\r|\n)([\s\S]*)$/);
+							// console.log(matched);
+
+							if( !matched ){
+								appendNewRow(data);
 								break;
 							}
-							$elm.find('>div.command-queue__row').get(0).remove();
-							rows.shift();
+							var row = matched[1];
+							var lf = matched[2];
+							data = matched[3];
+
+							appendNewRow(row);
 						}
+
+						removeOldRow();
 					},
 					function(){
 						done();
@@ -46,6 +49,35 @@ window.CommandQueue = function(elm, options){
 		return;
 	};
 
+
+	/**
+	 * 新しい行を追加する
+	 */
+	function appendNewRow(row){
+		var $elm = $(elm);
+		$elm.append( $('<div>')
+			.text(row)
+			.addClass('command-queue__row')
+		);
+		rows.push(row);
+		return;
+	}
+
+	/**
+	 * 古い行を削除する
+	 */
+	function removeOldRow(){
+		var $elm = $(elm);
+		while(1){
+			var rowSize = rows.length;
+			if(rowSize <= maxRows){
+				break;
+			}
+			$elm.find('>div.command-queue__row').get(0).remove();
+			rows.shift();
+		}
+		return;
+	}
 
 	/**
 	 * コマンド実行要求を送信する
