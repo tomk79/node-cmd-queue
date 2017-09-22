@@ -14,7 +14,8 @@ module.exports = function(opts){
 				'ls',
 				'pwd',
 				['git', 'status'],
-				['git', 'log']
+				['git', 'log'],
+				['npm', 'update']
 			],
 			'checkCommand': function(cmd, callback){
 				callback(cmd);
