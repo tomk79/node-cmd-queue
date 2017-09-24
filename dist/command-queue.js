@@ -13654,7 +13654,7 @@ process.chdir = function (dir) {
 /**
  * command-queue.js
  */
-window.CommandQueue = function(elm, options){
+window.CommandQueue = function(options){
 	var $ = require('jquery'),
 		it79 = require('iterate79'),
 		queue = new it79.queue({
@@ -13664,28 +13664,8 @@ window.CommandQueue = function(elm, options){
 					cmdAry,
 					function(data){
 						// console.log(data);
-						var isDoScrollEnd = isScrollEnd();
-
-						while(1){
-							var matched = data.match(/^([\s\S]*?)(\r\n|\r|\n)([\s\S]*)$/);
-							// console.log(matched);
-
-							if( !matched ){
-								appendNewRow(data);
-								break;
-							}
-							var row = matched[1];
-							var lf = matched[2];
-							data = matched[3];
-							if( lf.match(/^\r$/) ){
-								removeNewestRow();
-							}
-							appendNewRow(row);
-						}
-
-						removeOldRow();
-						if(isDoScrollEnd){
-							scrollEnd();
+						for(var idx in terminals){
+							terminals[idx].write(data);
 						}
 					},
 					function(){
@@ -13693,13 +13673,10 @@ window.CommandQueue = function(elm, options){
 					}
 				);
 			}
-		}),
-		maxRows = 400, // 表示する最大行数
-		rows = [];
+		});
 
-	var $elm = $(elm);
-	$elm.addClass('command-queue');
-	$elm.append('<div class="command-queue__console">');
+	var Terminal = require('./terminal.js');
+	var terminals = [];
 
 	// オプションの正規化
 	options = options||{};
@@ -13708,6 +13685,67 @@ window.CommandQueue = function(elm, options){
 		return;
 	};
 
+
+	/**
+	 * 端末オブジェクトを生成する
+	 */
+	this.createTerminal = function(elm){
+		var terminal = new Terminal(this, elm);
+		terminals.push(terminal);
+		return terminal;
+	}
+
+	/**
+	 * コマンド実行要求を送信する
+	 */
+	this.query = function(cmdAry){
+		// キュー処理に追加する
+		queue.push(cmdAry);
+		return;
+	}
+}
+
+},{"./terminal.js":18,"iterate79":12,"jquery":15}],18:[function(require,module,exports){
+/**
+ * command-queue - terminal.js
+ */
+module.exports = function(commandQueue, elm){
+	var $ = require('jquery');
+	var $elm = $(elm);
+	var maxRows = 400, // 表示する最大行数
+		rows = [];
+
+	$elm.addClass('command-queue');
+	$elm.append('<div class="command-queue__console">');
+
+	/**
+	 * 新しい行を書き込む
+	 */
+	this.write = function(data){
+		var isDoScrollEnd = isScrollEnd();
+
+		while(1){
+			var matched = data.match(/^([\s\S]*?)(\r\n|\r|\n)([\s\S]*)$/);
+			// console.log(matched);
+
+			if( !matched ){
+				appendNewRow(data);
+				break;
+			}
+			var row = matched[1];
+			var lf = matched[2];
+			data = matched[3];
+			if( lf.match(/^\r$/) ){
+				removeNewestRow();
+			}
+			appendNewRow(row);
+		}
+
+		removeOldRow();
+		if(isDoScrollEnd){
+			scrollEnd();
+		}
+	}
 
 	/**
 	 * 新しい行を追加する
@@ -13786,14 +13824,6 @@ window.CommandQueue = function(elm, options){
 		return false;
 	}
 
-	/**
-	 * コマンド実行要求を送信する
-	 */
-	this.query = function(cmdAry){
-		// キュー処理に追加する
-		queue.push(cmdAry);
-		return;
-	}
 }
 
-},{"iterate79":12,"jquery":15}]},{},[17])
+},{"jquery":15}]},{},[17])

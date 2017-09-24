@@ -1,5 +1,4 @@
 var commandQueue = new CommandQueue(
-	document.getElementById('finder1'),
 	{
 		'gpiBridge': function(params, chunk, done){
 			$.ajax({
@@ -17,4 +16,5 @@ var commandQueue = new CommandQueue(
 		}
 	}
 );
+var terminal = commandQueue.createTerminal( document.getElementById('finder1') );
 console.log(commandQueue);
