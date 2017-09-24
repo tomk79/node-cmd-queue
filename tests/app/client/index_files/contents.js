@@ -4,7 +4,7 @@ var commandQueue = new CommandQueue(
 			$.ajax({
 				'url': '/apis/commandQueue',
 				'data': {
-					cmd: params
+					'params': params
 				},
 				'success': function(data){
 					chunk(data);

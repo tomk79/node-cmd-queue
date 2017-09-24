@@ -9,7 +9,9 @@ module.exports = function(opts){
 		// console.log(req.body);
 
 		var commandQueue = new CommandQueue({
-			'cd': process.cwd(),
+			'cd': {
+				'default': process.cwd()
+			},
 			'allowedCommands': [
 				'ls',
 				'pwd',
@@ -30,7 +32,7 @@ module.exports = function(opts){
 		;
 
 		commandQueue.cmd({
-			'command': req.query.cmd,
+			'command': req.query.params,
 			'stdout': function(data){
 				// console.error('onData.', data.toString());
 				res.write( data );

@@ -13659,9 +13659,9 @@ window.CommandQueue = function(options){
 		it79 = require('iterate79'),
 		queue = new it79.queue({
 			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
-			'process': function(cmdAry, done){
+			'process': function(cmdOpt, done){
 				options.gpiBridge(
-					cmdAry,
+					cmdOpt,
 					function(data){
 						// console.log(data);
 						for(var idx in terminals){
@@ -13698,9 +13698,12 @@ window.CommandQueue = function(options){
 	/**
 	 * コマンド実行要求を送信する
 	 */
-	this.query = function(cmdAry){
+	this.query = function(cmdAry, cd){
 		// キュー処理に追加する
-		queue.push(cmdAry);
+		queue.push({
+			'cmdAry': cmdAry,
+			'cd': cd
+		});
 		return;
 	}
 }

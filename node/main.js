@@ -8,7 +8,7 @@ module.exports = function(config){
 	config.checkCommand = config.checkCommand||function(){};
 
 	var pathDefaultCurrentDir = process.cwd();
-	var cd = config.cd||pathDefaultCurrentDir;
+	var cd = config.cd||{'default': pathDefaultCurrentDir};
 		processor = config.processor||function(cmd, callback){
 			callback(cmd);
 		};
@@ -54,7 +54,7 @@ module.exports = function(config){
 	 */
 	this.cmd = function(options){
 		options = options || {};
-		var cmdAry = options.command || null;
+		var cmdAry = options.command.cmdAry || null;
 		if( cmdAry === null ){
 			// コマンドが指定されていない
 			options.complete(false);
@@ -65,6 +65,7 @@ module.exports = function(config){
 			options.complete(false);
 			return;
 		}
+		var cmdCdId = options.command.cd || null;
 		checkCommand(
 			cmdAry,
 			function(cmdAry){
@@ -74,8 +75,9 @@ module.exports = function(config){
 
 				var child_process = require('child_process');
 
-				if( cd ){
-					process.chdir( cd );
+				var tmpCd = cd[cmdCdId];
+				if( tmpCd ){
+					process.chdir( tmpCd );
 				}
 
 				var cmd = cmdAry.shift();
@@ -88,7 +90,7 @@ module.exports = function(config){
 					options.stderr(data);
 				});
 				proc.on('close', function(){
-					if( cd ){
+					if( tmpCd ){
 						process.chdir( pathDefaultCurrentDir );
 					}
 					options.complete();
