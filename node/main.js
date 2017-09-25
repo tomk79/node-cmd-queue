@@ -65,7 +65,8 @@ module.exports = function(config){
 			options.complete(false);
 			return;
 		}
-		var cmdCdId = options.command.cd || null;
+		var cmdCdName = options.command.cdName || 'default'; // 無指定の場合、 `default` を参照する。
+		var cmdTags = options.command.tags || [];
 		checkCommand(
 			cmdAry,
 			function(cmdAry){
@@ -75,7 +76,7 @@ module.exports = function(config){
 
 				var child_process = require('child_process');
 
-				var tmpCd = cd[cmdCdId];
+				var tmpCd = cd[cmdCdName];
 				if( tmpCd ){
 					process.chdir( tmpCd );
 				}

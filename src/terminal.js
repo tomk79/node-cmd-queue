@@ -13,7 +13,8 @@ module.exports = function(commandQueue, elm){
 	/**
 	 * 新しい行を書き込む
 	 */
-	this.write = function(data){
+	this.write = function(data, queryInfo){
+		// console.log(queryInfo);
 		var isDoScrollEnd = isScrollEnd();
 
 		while(1){

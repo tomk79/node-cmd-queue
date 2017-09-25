@@ -2166,6 +2166,8 @@ module.exports = function(_options){
 				status[currentData.id] = undefined; delete(status[currentData.id]); // <- 処理済み にステータスを変更
 				threads[threadNumber].active = false;
 				runQueue();
+			}, {
+				'id': currentData.id
 			});
 		}); });
 		return;
@@ -13659,13 +13661,16 @@ window.CommandQueue = function(options){
 		it79 = require('iterate79'),
 		queue = new it79.queue({
 			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
-			'process': function(cmdOpt, done){
+			'process': function(cmdOpt, done, queryInfo){
 				options.gpiBridge(
 					cmdOpt,
 					function(data){
 						// console.log(data);
 						for(var idx in terminals){
-							terminals[idx].write(data);
+							terminals[idx].write(data, {
+								'id': queryInfo.id,
+								'tags': cmdOpt.tags
+							});
 						}
 					},
 					function(){
@@ -13698,11 +13703,16 @@ window.CommandQueue = function(options){
 	/**
 	 * コマンド実行要求を送信する
 	 */
-	this.query = function(cmdAry, cd){
+	this.query = function(cmdAry, options){
+		options = options || {};
+		var cdName = options.cdName || undefined;
+		var tags = options.tags || [];
+
 		// キュー処理に追加する
 		queue.push({
 			'cmdAry': cmdAry,
-			'cd': cd
+			'cdName': cdName,
+			'tags': tags
 		});
 		return;
 	}
@@ -13724,7 +13734,8 @@ module.exports = function(commandQueue, elm){
 	/**
 	 * 新しい行を書き込む
 	 */
-	this.write = function(data){
+	this.write = function(data, queryInfo){
+		// console.log(queryInfo);
 		var isDoScrollEnd = isScrollEnd();
 
 		while(1){
