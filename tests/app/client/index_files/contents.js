@@ -1,13 +1,15 @@
+var socket = io();
 var commandQueue = new CommandQueue(
 	{
-		'gpiBridge': function(params, chunk, done){
+		'gpiBridge': function(message, done){
+			// クライアントからサーバーへのメッセージ送信を仲介
 			$.ajax({
 				'url': '/apis/commandQueue',
 				'data': {
-					'params': params
+					'message': message
 				},
 				'success': function(data){
-					chunk(data);
+					console.log(data);
 				},
 				'complete': function(){
 					done();
@@ -16,5 +18,11 @@ var commandQueue = new CommandQueue(
 		}
 	}
 );
+socket.on('command-queue-message', function(message){
+	// console.log('====== command-queue-message');
+	// console.log(message);
+	commandQueue.gpi(message);
+});
+
 var terminal = commandQueue.createTerminal( document.getElementById('finder1') );
 console.log(commandQueue);

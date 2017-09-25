@@ -6,12 +6,79 @@ module.exports = function(config){
 	config = config||{};
 	config.allowedCommands = config.allowedCommands||[];
 	config.checkCommand = config.checkCommand||function(){};
+	config.gpiBridge = config.gpiBridge||function(){};
+
+	var it79 = require('iterate79'),
+		queue = new it79.queue({
+			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
+			'process': function(cmdOpt, done, queryInfo){
+				console.log('=-=-=-=-=-=-=-=-= prosess');
+				console.log(cmdOpt, queryInfo);
+
+				_this.cmd({
+					'command': cmdOpt,
+					'stdout': function(data){
+						console.error('onData.', data.toString());
+						config.gpiBridge(
+							{
+								'command': 'stdout',
+								'queryInfo': queryInfo,
+								'tags': cmdOpt.tags,
+								'data': data.toString()
+							},
+							function(){
+								done();
+							}
+						);
+
+					},
+					'stderr': function(data){
+						console.error('onError.', data.toString());
+						config.gpiBridge(
+							{
+								'command': 'stderr',
+								'queryInfo': queryInfo,
+								'tags': cmdOpt.tags,
+								'data': data.toString()
+							},
+							function(){
+								done();
+							}
+						);
+					},
+					'complete': function(){
+						console.error('onClose.');
+						config.gpiBridge(
+							{
+								'command': 'close',
+								'queryInfo': queryInfo,
+								'tags': cmdOpt.tags,
+								'data': ''
+							},
+							function(){
+								done();
+							}
+						);
+					}
+				});
+
+			}
+		});
 
 	var pathDefaultCurrentDir = process.cwd();
 	var cd = config.cd||{'default': pathDefaultCurrentDir};
 		processor = config.processor||function(cmd, callback){
 			callback(cmd);
 		};
+
+	/**
+	 * GPI
+	 * クライアントからのメッセージを受けて処理する
+	 */
+	this.gpi = function(message){
+		var Gpi = require('./gpi.js');
+		return Gpi(this, message);
+	};
 
 	/**
 	 * 許可されたコマンドかどうか確認する
@@ -39,6 +106,16 @@ module.exports = function(config){
 	}
 
 	/**
+	 * クエリを追加する
+	 */
+	this.query = function(params, callback){
+		callback = callback || function(){};
+		queue.push(params);
+		callback();
+		return;
+	}
+
+	/**
 	 * コマンド内容をユーザー関数で確認
 	 * 必要に応じて加工済みのコマンドで置き換える。
 	 */
@@ -54,7 +131,7 @@ module.exports = function(config){
 	 */
 	this.cmd = function(options){
 		options = options || {};
-		var cmdAry = options.command.cmdAry || null;
+		var cmdAry = options.command.cmd || null;
 		if( cmdAry === null ){
 			// コマンドが指定されていない
 			options.complete(false);

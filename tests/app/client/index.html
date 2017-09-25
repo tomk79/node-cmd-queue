@@ -11,13 +11,16 @@
 <h1>Command Queue TEST</h1>
 <ul>
 	<li><button type="button" onclick="commandQueue.query(['pwd']);">pwd</button></li>
-	<li><button type="button" onclick="commandQueue.query(['ls', '-la']);">ls -la</button></li>
+	<li><button type="button" onclick="commandQueue.query(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
 	<li><button type="button" onclick="commandQueue.query(['git', 'status']);">git status</button></li>
 	<li><button type="button" onclick="commandQueue.query(['git', 'log']);">git log</button></li>
 	<li><button type="button" onclick="commandQueue.query(['git', 'branch']);">git branch</button></li>
 	<li><button type="button" onclick="commandQueue.query(['npm', 'update']);">npm update</button></li>
 </ul>
 <div id="finder1"></div>
+
+<!-- Socket.io -->
+<script src="/socket.io/socket.io.js"></script>
 
 <!-- jQuery -->
 <script src="/common/jquery/jquery.js"></script>

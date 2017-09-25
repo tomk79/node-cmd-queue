@@ -2,35 +2,13 @@
  * command-queue.js
  */
 window.CommandQueue = function(options){
-	var $ = require('jquery'),
-		it79 = require('iterate79'),
-		queue = new it79.queue({
-			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
-			'process': function(cmdOpt, done, queryInfo){
-				options.gpiBridge(
-					cmdOpt,
-					function(data){
-						// console.log(data);
-						for(var idx in terminals){
-							terminals[idx].write(data, {
-								'id': queryInfo.id,
-								'tags': cmdOpt.tags
-							});
-						}
-					},
-					function(){
-						done();
-					}
-				);
-			}
-		});
-
+	var $ = require('jquery');
 	var Terminal = require('./terminal.js');
 	var terminals = [];
 
 	// オプションの正規化
 	options = options||{};
-	options.gpiBridge = options.gpiBridge||function(param, chunk, done){
+	var gpiBridge = options.gpiBridge||function(param, done){
 		done();
 		return;
 	};
@@ -46,19 +24,42 @@ window.CommandQueue = function(options){
 	}
 
 	/**
+	 * 端末にメッセージを送信する
+	 */
+	this.sendToTerminals = function(message){
+		for(var idx in terminals){
+			terminals[idx].write(message.data);
+		}
+		return;
+	}
+
+	/**
 	 * コマンド実行要求を送信する
 	 */
-	this.query = function(cmdAry, options){
+	this.query = function(cmd, options){
 		options = options || {};
 		var cdName = options.cdName || undefined;
 		var tags = options.tags || [];
+		var done = options.done || function(){};
 
-		// キュー処理に追加する
-		queue.push({
-			'cmdAry': cmdAry,
+		gpiBridge({
+			'command': 'query',
+			'cmd': cmd,
 			'cdName': cdName,
 			'tags': tags
+		}, function(){
+			done();
 		});
+
 		return;
-	}
+	} // query()
+
+	/**
+	 * GPI
+	 * サーバーからのメッセージを受けて処理する
+	 */
+	this.gpi = function(message){
+		var Gpi = require('./gpi.js');
+		return Gpi(this, message);
+	};
 }

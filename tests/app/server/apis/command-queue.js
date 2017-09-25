@@ -4,26 +4,30 @@
 module.exports = function(opts){
 
 	var CommandQueue = require('../../../../node/main.js');
+	var commandQueue = new CommandQueue({
+		'cd': {
+			'default': process.cwd()
+		},
+		'allowedCommands': [
+			'ls',
+			'pwd',
+			['git', 'status'],
+			['git', 'log'],
+			['npm', 'update']
+		],
+		'checkCommand': function(cmd, callback){
+			callback(cmd);
+		},
+		'gpiBridge': function(message, done){
+			// サーバーからクライアントへのメッセージ送信を仲介
+			opts.socketIo.emit('command-queue-message', message);
+			done();
+			return;
+		}
+	});
 
 	return function(req, res, next){
 		// console.log(req.body);
-
-		var commandQueue = new CommandQueue({
-			'cd': {
-				'default': process.cwd()
-			},
-			'allowedCommands': [
-				'ls',
-				'pwd',
-				['git', 'status'],
-				['git', 'log'],
-				['npm', 'update']
-			],
-			'checkCommand': function(cmd, callback){
-				callback(cmd);
-			}
-		});
-
 		// console.log(req.query.cmd);
 
 		res
@@ -31,22 +35,10 @@ module.exports = function(opts){
 			.set('Content-Type', 'text/plain')
 		;
 
-		commandQueue.cmd({
-			'command': req.query.params,
-			'stdout': function(data){
-				// console.error('onData.', data.toString());
-				res.write( data );
-				res.flushHeaders();
-			},
-			'stderr': function(data){
-				// console.error('onError.', data.toString());
-				res.write( data );
-				res.flushHeaders();
-			},
-			'complete': function(){
-				// console.error('onClose.');
-				res.end();
-			}
+		// クライアントから受け取ったメッセージをGPIへ送る
+		commandQueue.gpi(req.query.message, function(){
+			console.error('onClose.');
+			res.end();
 		});
 
 		return;
