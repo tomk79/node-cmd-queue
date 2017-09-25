@@ -6,12 +6,12 @@ module.exports = function(commandQueue, message, callback){
 
 	switch(message.command){
 		case 'query':
-			commandQueue.query(message, function(){
-				callback();
+			commandQueue.query(message, function(result){
+				callback(result);
 			});
 			break;
 		default:
-			callback();
+			callback(false);
 			break;
 	}
 	return;

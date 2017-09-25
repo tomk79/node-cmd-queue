@@ -36,8 +36,10 @@ module.exports = function(opts){
 		;
 
 		// クライアントから受け取ったメッセージをGPIへ送る
-		commandQueue.gpi(req.query.message, function(){
-			console.error('onClose.');
+		commandQueue.gpi(req.query.message, function(result){
+			// console.error('onClose.');
+			res.write( JSON.stringify(result) );
+			res.flushHeaders();
 			res.end();
 		});
 

@@ -12,13 +12,13 @@ module.exports = function(config){
 		queue = new it79.queue({
 			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
 			'process': function(cmdOpt, done, queryInfo){
-				console.log('=-=-=-=-=-=-=-=-= prosess');
-				console.log(cmdOpt, queryInfo);
+				// console.log('=-=-=-=-=-=-=-=-= prosess');
+				// console.log(cmdOpt, queryInfo);
 
 				_this.cmd({
 					'command': cmdOpt,
 					'stdout': function(data){
-						console.error('onData.', data.toString());
+						// console.error('onData.', data.toString());
 						config.gpiBridge(
 							{
 								'command': 'stdout',
@@ -27,13 +27,12 @@ module.exports = function(config){
 								'data': data.toString()
 							},
 							function(){
-								done();
 							}
 						);
 
 					},
 					'stderr': function(data){
-						console.error('onError.', data.toString());
+						// console.error('onError.', data.toString());
 						config.gpiBridge(
 							{
 								'command': 'stderr',
@@ -42,12 +41,11 @@ module.exports = function(config){
 								'data': data.toString()
 							},
 							function(){
-								done();
 							}
 						);
 					},
 					'complete': function(){
-						console.error('onClose.');
+						// console.error('onClose.');
 						config.gpiBridge(
 							{
 								'command': 'close',
@@ -56,7 +54,9 @@ module.exports = function(config){
 								'data': ''
 							},
 							function(){
-								done();
+								setTimeout(function(){
+									done();
+								}, 0);
 							}
 						);
 					}
@@ -75,9 +75,10 @@ module.exports = function(config){
 	 * GPI
 	 * クライアントからのメッセージを受けて処理する
 	 */
-	this.gpi = function(message){
+	this.gpi = function(message, callback){
+		callback = callback || function(){};
 		var Gpi = require('./gpi.js');
-		return Gpi(this, message);
+		return Gpi(this, message, callback);
 	};
 
 	/**
@@ -110,8 +111,8 @@ module.exports = function(config){
 	 */
 	this.query = function(params, callback){
 		callback = callback || function(){};
-		queue.push(params);
-		callback();
+		var queueId = queue.push(params);
+		callback(queueId);
 		return;
 	}
 

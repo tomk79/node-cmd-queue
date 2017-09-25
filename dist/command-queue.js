@@ -10326,7 +10326,7 @@ window.CommandQueue = function(options){
  */
 module.exports = function(commandQueue, message, callback){
 	callback = callback || function(){};
-	console.log(message);
+	// console.log(message);
 
 	switch(message.command){
 		case 'stdout':
@@ -10336,7 +10336,7 @@ module.exports = function(commandQueue, message, callback){
 			});
 			break;
 		case 'close':
-			console.log('command closed.', message.queryInfo.id, message.tags);
+			// console.log('command closed.', message.queryInfo.id, message.tags);
 			callback();
 			break;
 		default:
