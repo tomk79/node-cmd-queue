@@ -66,7 +66,7 @@ module.exports = function(config){
 		});
 
 	var pathDefaultCurrentDir = process.cwd();
-	var cd = config.cd||{'default': pathDefaultCurrentDir};
+	var currentDirs = config.cd||{'default': pathDefaultCurrentDir};
 		processor = config.processor||function(cmd, callback){
 			callback(cmd);
 		};
@@ -104,6 +104,45 @@ module.exports = function(config){
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * カレントディレクトリ設定を追加または上書きする
+	 */
+	this.setCurrentDir = function(cdName, cd){
+		currentDirs[cdName] = cd;
+		return true;
+	}
+
+	/**
+	 * カレントディレクトリ設定を取得する
+	 */
+	this.getCurrentDir = function(cdName){
+		return currentDirs[cdName];
+	}
+
+	/**
+	 * カレントディレクトリ設定を削除する
+	 */
+	this.removeCurrentDir = function(cdName){
+		currentDirs[cdName] = undefined;
+		delete(currentDirs[cdName]);
+		return true;
+	}
+
+	/**
+	 * カレントディレクトリ設定の全件を取得する
+	 */
+	this.getAllCurrentDirs = function(){
+		return currentDirs;
+	}
+
+	/**
+	 * カレントディレクトリ設定をすべて消去する
+	 */
+	this.clearCurrentDir = function(){
+		currentDirs = {};
+		return true;
 	}
 
 	/**
@@ -154,7 +193,7 @@ module.exports = function(config){
 
 				var child_process = require('child_process');
 
-				var tmpCd = cd[cmdCdName];
+				var tmpCd = currentDirs[cmdCdName];
 				if( tmpCd ){
 					process.chdir( tmpCd );
 				}

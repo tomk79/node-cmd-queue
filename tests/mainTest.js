@@ -6,7 +6,7 @@ describe('Initialize Instance', function() {
 
 	it("Initialize Instance", function(done) {
 		this.timeout(60*1000);
-        var commandQueue = new CommandQueue({});
+		var commandQueue = new CommandQueue({});
 
 		assert.equal(typeof(commandQueue), typeof({}));
 
