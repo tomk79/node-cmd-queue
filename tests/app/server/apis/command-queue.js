@@ -6,7 +6,8 @@ module.exports = function(opts){
 	var CommandQueue = require('../../../../node/main.js');
 	var commandQueue = new CommandQueue({
 		'cd': {
-			'default': process.cwd()
+			'default': process.cwd(),
+			'tests': process.cwd()+'/tests'
 		},
 		'allowedCommands': [
 			'ls',

@@ -193,6 +193,11 @@ module.exports = function(config){
 	 */
 	this.query = function(params, callback){
 		callback = callback || function(){};
+		if(params.cdName){
+			params.cdName = currentDirs[params.cdName];
+		}else{
+			params.cdName = currentDirs['default'];
+		}
 		var queueId = queue.push(params);
 		callback(queueId);
 		return;
@@ -225,7 +230,7 @@ module.exports = function(config){
 			options.complete(false);
 			return;
 		}
-		var cmdCdName = options.command.cdName || 'default'; // 無指定の場合、 `default` を参照する。
+		var tmpCd = options.command.cdName; // 無指定の場合、 `default` を参照する。
 		var cmdTags = options.command.tags || [];
 		userCheckCommand(
 			cmdAry,
@@ -236,7 +241,6 @@ module.exports = function(config){
 
 				var child_process = require('child_process');
 
-				var tmpCd = currentDirs[cmdCdName];
 				if( tmpCd ){
 					process.chdir( tmpCd );
 				}
