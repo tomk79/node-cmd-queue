@@ -4,9 +4,9 @@
 module.exports = function(config){
 	var _this = this;
 	config = config||{};
-	config.allowedCommands = config.allowedCommands||[];
+	var allowedCommands = config.allowedCommands||[];
 	config.checkCommand = config.checkCommand||function(){};
-	config.gpiBridge = config.gpiBridge||function(){};
+	var gpiBridge = config.gpiBridge||function(){};
 
 	var it79 = require('iterate79'),
 		queue = new it79.queue({
@@ -19,7 +19,7 @@ module.exports = function(config){
 					'command': cmdOpt,
 					'stdout': function(data){
 						// console.error('onData.', data.toString());
-						config.gpiBridge(
+						gpiBridge(
 							{
 								'command': 'stdout',
 								'queryInfo': queryInfo,
@@ -33,7 +33,7 @@ module.exports = function(config){
 					},
 					'stderr': function(data){
 						// console.error('onError.', data.toString());
-						config.gpiBridge(
+						gpiBridge(
 							{
 								'command': 'stderr',
 								'queryInfo': queryInfo,
@@ -46,7 +46,7 @@ module.exports = function(config){
 					},
 					'complete': function(){
 						// console.error('onClose.');
-						config.gpiBridge(
+						gpiBridge(
 							{
 								'command': 'close',
 								'queryInfo': queryInfo,
@@ -146,6 +146,49 @@ module.exports = function(config){
 	}
 
 	/**
+	 * 許可コマンドのパターンを追加する
+	 */
+	this.addAllowedCommand = function( cmdAry ){
+		for(var idx1 in allowedCommands){
+			if( allowedCommands[idx1] === cmdAry ){
+				// 既に登録されている
+				return true;
+			}
+		}
+		allowedCommands.push(cmdAry);
+		return true;
+	}
+
+	/**
+	 * 許可コマンドのパターンを削除する
+	 */
+	this.removeAllowedCommand = function( cmdAry ){
+		for(var idx1 in allowedCommands){
+			if( allowedCommands[idx1] === cmdAry ){
+				allowedCommands[idx1] = undefined;
+				delete(allowedCommands[idx1]);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 許可コマンドのパターンをすべて消去する
+	 */
+	this.getAllAllowedCommands = function(){
+		return allowedCommands;
+	}
+
+	/**
+	 * 許可コマンドのパターンをすべて消去する
+	 */
+	this.clearAllowedCommands = function(){
+		allowedCommands = [];
+		return true;
+	}
+
+	/**
 	 * クエリを追加する
 	 */
 	this.query = function(params, callback){
@@ -159,7 +202,7 @@ module.exports = function(config){
 	 * コマンド内容をユーザー関数で確認
 	 * 必要に応じて加工済みのコマンドで置き換える。
 	 */
-	function checkCommand(cmdAry, callback){
+	function userCheckCommand(cmdAry, callback){
 		config.checkCommand(cmdAry, function(cmdAry){
 			callback(cmdAry);
 		});
@@ -177,14 +220,14 @@ module.exports = function(config){
 			options.complete(false);
 			return;
 		}
-		if( !isCommandAllowed(cmdAry, config.allowedCommands) ){
+		if( !isCommandAllowed(cmdAry, allowedCommands) ){
 			// 許可されていないコマンド
 			options.complete(false);
 			return;
 		}
 		var cmdCdName = options.command.cdName || 'default'; // 無指定の場合、 `default` を参照する。
 		var cmdTags = options.command.tags || [];
-		checkCommand(
+		userCheckCommand(
 			cmdAry,
 			function(cmdAry){
 				options.stdout = options.stdout || function(){};
