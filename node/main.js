@@ -140,7 +140,7 @@ module.exports = function(config){
 	/**
 	 * カレントディレクトリ設定をすべて消去する
 	 */
-	this.clearCurrentDir = function(){
+	this.clearAllCurrentDirs = function(){
 		currentDirs = {};
 		return true;
 	}
@@ -150,7 +150,7 @@ module.exports = function(config){
 	 */
 	this.addAllowedCommand = function( cmdAry ){
 		for(var idx1 in allowedCommands){
-			if( allowedCommands[idx1] === cmdAry ){
+			if( JSON.stringify(allowedCommands[idx1]) === JSON.stringify(cmdAry) ){
 				// 既に登録されている
 				return true;
 			}
@@ -164,7 +164,7 @@ module.exports = function(config){
 	 */
 	this.removeAllowedCommand = function( cmdAry ){
 		for(var idx1 in allowedCommands){
-			if( allowedCommands[idx1] === cmdAry ){
+			if( JSON.stringify(allowedCommands[idx1]) === JSON.stringify(cmdAry) ){
 				allowedCommands[idx1] = undefined;
 				delete(allowedCommands[idx1]);
 				return true;
@@ -183,7 +183,7 @@ module.exports = function(config){
 	/**
 	 * 許可コマンドのパターンをすべて消去する
 	 */
-	this.clearAllowedCommands = function(){
+	this.clearAllAllowedCommands = function(){
 		allowedCommands = [];
 		return true;
 	}
