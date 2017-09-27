@@ -10,45 +10,41 @@ module.exports = function(commandQueue, elm){
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
 
-	/**
-	 * 新しいコマンドの開始を宣言する
-	 */
-	this.open = function(command, queryInfo){
-		var isDoScrollEnd = isScrollEnd();
-		appendNewRow(command, 'open');
-		if(isDoScrollEnd){
-			scrollEnd();
-		}
-		return;
-	}
-
-	/**
-	 * コマンドの終了を宣言する
-	 */
-	this.close = function(status, queryInfo){
-		var isDoScrollEnd = isScrollEnd();
-		appendNewRow(status, 'close');
-		if(isDoScrollEnd){
-			scrollEnd();
-		}
-		return;
-	}
 
 	/**
 	 * 新しい行を書き込む
 	 */
-	this.write = function(dataAry, queryInfo){
-		// console.log(queryInfo);
+	this.write = function(message){
+		// console.log(message);
 		var isDoScrollEnd = isScrollEnd();
+
+		if(message.command == 'open'){
+			appendNewRow('open', message.data);
+			appendNewRow('row');
+			if(isDoScrollEnd){
+				scrollEnd();
+			}
+			return;
+		}
+		if(message.command == 'close'){
+			appendNewRow('close', message.data);
+			if(isDoScrollEnd){
+				scrollEnd();
+			}
+			return;
+		}
+
+
+		var dataAry = message.data;
 
 		for(var i = 0; i < dataAry.length; i ++){
 			var row = dataAry[i];
 			if( row.match(/^\r$/) ){
 				removeNewestRow();
 			}else if( row.match(/^(?:\r\n|\n)$/) ){
-				// removeNewestRow(row);
+				appendNewRow('row');
 			}else{
-				appendNewRow(row);
+				writeToNewestRow(row);
 			}
 		}
 
@@ -62,40 +58,26 @@ module.exports = function(commandQueue, elm){
 	/**
 	 * 新しい行を追加する
 	 */
-	function appendNewRow(row, type){
+	function appendNewRow(type, row){
 		var $console = $(elm).find('>.command-queue__console');
 		type = type || 'row';
 		var $row = $('<div>')
 			.addClass('command-queue__row');
 
-		if(type){
+		if(type == 'open'){
 			$row.addClass('command-queue__'+type);
-		}
-		if(type == 'close'){
+			$row.text(row);
+		}else if(type == 'close'){
+			$row.addClass('command-queue__'+type);
 			var status = row;
 			row = '---- command closed width status '+JSON.stringify(status)+' ----';
 			if( status !== 0 ){
 				$row.addClass('command-queue__err');
 			}
+			$row.text(row);
 		}
 
-		$row.text(row);
-
 		$console.append($row);
-		rows.push(row);
-		return;
-	}
-
-	/**
-	 * CR処理
-	 */
-	function cr(row){
-		var $console = $(elm).find('>.command-queue__console');
-		$console.append( $('<div>')
-			.text(row)
-			.addClass('command-queue__row')
-		);
-		rows.push(row);
 		return;
 	}
 
@@ -109,6 +91,16 @@ module.exports = function(commandQueue, elm){
 		$console.find('>div.command-queue__row').get(memoryLineSize-1).remove();
 		rows.unshift();
 
+		return;
+	}
+
+	/**
+	 * 最も新しい行に追記する
+	 */
+	function writeToNewestRow(text){
+		var $console = $(elm).find('>.command-queue__console');
+		var memoryLineSize = rows.length;
+		$console.find('>div.command-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
 		return;
 	}
 
