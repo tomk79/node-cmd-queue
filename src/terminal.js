@@ -10,6 +10,7 @@ module.exports = function(commandQueue, elm){
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
 
+	var $console = $(elm).find('>.command-queue__console');
 
 	/**
 	 * 新しい行を書き込む
@@ -59,10 +60,12 @@ module.exports = function(commandQueue, elm){
 	 * 新しい行を追加する
 	 */
 	function appendNewRow(type, row){
-		var $console = $(elm).find('>.command-queue__console');
 		type = type || 'row';
 		var $row = $('<div>')
 			.addClass('command-queue__row');
+
+		var memoryLineSize = rows.length;
+		$console.find('>div.command-queue__row').eq(memoryLineSize-1).append( $('<br />') );
 
 		if(type == 'open'){
 			$row.addClass('command-queue__'+type);
@@ -85,8 +88,6 @@ module.exports = function(commandQueue, elm){
 	 * 最も新しい行を削除する
 	 */
 	function removeNewestRow(){
-		var $console = $(elm).find('>.command-queue__console');
-
 		var memoryLineSize = rows.length;
 		$console.find('>div.command-queue__row').get(memoryLineSize-1).remove();
 		rows.unshift();
@@ -98,7 +99,6 @@ module.exports = function(commandQueue, elm){
 	 * 最も新しい行に追記する
 	 */
 	function writeToNewestRow(text){
-		var $console = $(elm).find('>.command-queue__console');
 		var memoryLineSize = rows.length;
 		$console.find('>div.command-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
 		return;
@@ -108,7 +108,6 @@ module.exports = function(commandQueue, elm){
 	 * 古い行を削除する
 	 */
 	function removeOldRow(){
-		var $console = $(elm).find('>.command-queue__console');
 		while(1){
 			var memoryLineSize = rows.length;
 			if(memoryLineSize <= memoryLineSizeLimit){

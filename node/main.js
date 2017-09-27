@@ -56,7 +56,7 @@ module.exports = function(config){
 						);
 					},
 					'complete': function(status){
-						console.error('onClose.', status);
+						// console.error('onClose.', status);
 						gpiBridge(
 							{
 								'command': 'close',
