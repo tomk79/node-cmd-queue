@@ -5,7 +5,7 @@ module.exports = function(commandQueue, message, callback){
 	callback = callback || function(){};
 
 	switch(message.command){
-		case 'query':
+		case 'add_queue_item':
 			commandQueue.query(message, function(result){
 				callback(result);
 			});

@@ -16,8 +16,25 @@ module.exports = function(opts){
 			['git', 'log'],
 			['npm', 'update']
 		],
-		'checkCommand': function(cmd, callback){
+		'preprocess': function(cmd, callback){
+			// 実行前の加工などの処理があれば記述
+			// console.log(cmd);
+			if( cmd.command[0] == 'preprocess_test' ){
+				cmd.stdout('This is NOT a command.');
+				cmd.stdout("\n");
+				setTimeout(function(){
+					cmd.stdout('...');
+					setTimeout(function(){
+						cmd.stdout("\r");
+						cmd.stdout('Preprocess option replied.');
+						cmd.complete(0);
+						callback(false);
+					}, 2000);
+				}, 2000);
+				return;
+			}
 			callback(cmd);
+			return;
 		},
 		'gpiBridge': function(message, done){
 			// サーバーからクライアントへのメッセージ送信を仲介

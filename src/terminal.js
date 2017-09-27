@@ -4,8 +4,7 @@
 module.exports = function(commandQueue, elm){
 	var $ = require('jquery');
 	var $elm = $(elm);
-	var memoryLineSizeLimit = 1000, // 表示する最大行数
-		rows = [];
+	var memoryLineSizeLimit = 1000; // 表示する最大行数
 
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
@@ -40,10 +39,10 @@ module.exports = function(commandQueue, elm){
 
 		for(var i = 0; i < dataAry.length; i ++){
 			var row = dataAry[i];
-			if( row.match(/^\r$/) ){
+			if( row.match(/^(?:\r\n|\n)$/) ){
+				appendNewRow();
+			}else if( row.match(/^\r$/) ){
 				removeNewestRow();
-			}else if( row.match(/^(?:\r\n|\n)$/) ){
-				appendNewRow('row');
 			}else{
 				writeToNewestRow(row);
 			}
@@ -64,7 +63,8 @@ module.exports = function(commandQueue, elm){
 		var $row = $('<div>')
 			.addClass('command-queue__row');
 
-		var memoryLineSize = rows.length;
+		var $rows = $console.find('>div.command-queue__row');
+		var memoryLineSize = $rows.length;
 		$console.find('>div.command-queue__row').eq(memoryLineSize-1).append( $('<br />') );
 
 		if(type == 'open'){
@@ -88,10 +88,11 @@ module.exports = function(commandQueue, elm){
 	 * 最も新しい行を削除する
 	 */
 	function removeNewestRow(){
-		var memoryLineSize = rows.length;
-		$console.find('>div.command-queue__row').get(memoryLineSize-1).remove();
-		rows.unshift();
-
+		var $rows = $console.find('>div.command-queue__row');
+		var memoryLineSize = $rows.length;
+		$rows.get(memoryLineSize-1).remove();
+		$rows.eq(memoryLineSize-2).find('br').remove();
+		appendNewRow();
 		return;
 	}
 
@@ -99,7 +100,8 @@ module.exports = function(commandQueue, elm){
 	 * 最も新しい行に追記する
 	 */
 	function writeToNewestRow(text){
-		var memoryLineSize = rows.length;
+		var $rows = $console.find('>div.command-queue__row');
+		var memoryLineSize = $rows.length;
 		$console.find('>div.command-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
 		return;
 	}
@@ -108,13 +110,13 @@ module.exports = function(commandQueue, elm){
 	 * 古い行を削除する
 	 */
 	function removeOldRow(){
+		var $rows = $console.find('>div.command-queue__row');
 		while(1){
-			var memoryLineSize = rows.length;
+			var memoryLineSize = $rows.length;
 			if(memoryLineSize <= memoryLineSizeLimit){
 				break;
 			}
 			$console.find('>div.command-queue__row').get(0).remove();
-			rows.shift();
 		}
 		return;
 	}

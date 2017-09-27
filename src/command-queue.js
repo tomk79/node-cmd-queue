@@ -66,14 +66,14 @@ window.CommandQueue = function(options){
 	/**
 	 * コマンド実行要求を送信する
 	 */
-	this.query = function(cmd, options){
+	this.addQueueItem = function(cmd, options){
 		options = options || {};
 		var cdName = options.cdName || undefined;
 		var tags = options.tags || [];
 		var done = options.done || function(){};
 
 		gpiBridge({
-			'command': 'query',
+			'command': 'add_queue_item',
 			'cmd': cmd,
 			'cdName': cdName,
 			'tags': tags
@@ -82,7 +82,7 @@ window.CommandQueue = function(options){
 		});
 
 		return;
-	} // query()
+	} // addQueueItem()
 
 	/**
 	 * GPI

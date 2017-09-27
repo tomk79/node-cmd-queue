@@ -10,13 +10,14 @@
 
 <h1>Command Queue TEST</h1>
 <ul>
-	<li><button type="button" onclick="commandQueue.query(['pwd']);">pwd</button></li>
-	<li><button type="button" onclick="commandQueue.query(['pwd'], {cdName:'tests'});">pwd (tests)</button></li>
-	<li><button type="button" onclick="commandQueue.query(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
-	<li><button type="button" onclick="commandQueue.query(['git', 'status']);">git status</button></li>
-	<li><button type="button" onclick="commandQueue.query(['git', 'log']);">git log</button></li>
-	<li><button type="button" onclick="commandQueue.query(['git', 'branch']);">git branch</button></li>
-	<li><button type="button" onclick="commandQueue.query(['npm', 'update']);">npm update</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd']);">pwd</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd'], {cdName:'tests'});">pwd (tests)</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'status']);">git status</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'log']);">git log</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'branch']);">git branch</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['npm', 'update']);">npm update</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['preprocess_test']);">preprocess_test</button></li>
 </ul>
 <div id="finder1"></div>
 

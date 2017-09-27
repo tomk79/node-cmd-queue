@@ -5,35 +5,43 @@ module.exports = function(config){
 	var _this = this;
 	config = config||{};
 	var allowedCommands = config.allowedCommands||[];
-	config.checkCommand = config.checkCommand||function(){};
+	var pathDefaultCurrentDir = process.cwd();
+	var currentDirs = config.cd||{'default': pathDefaultCurrentDir};
+		preprocess = config.preprocess||function(cmd, callback){
+			callback(cmd);
+		};
 	var gpiBridge = config.gpiBridge||function(){};
 
 	var it79 = require('iterate79'),
 		queue = new it79.queue({
 			'threadLimit': 1 , // 並行処理する場合のスレッド数上限
-			'process': function(cmdOpt, done, queryInfo){
+			'process': function(cmdOpt, done, queueItemInfo){
 				// console.log('=-=-=-=-=-=-=-=-= prosess');
-				// console.log(cmdOpt, queryInfo);
+				// console.log(cmdOpt, queueItemInfo);
 
 				gpiBridge(
 					{
 						'command': 'open',
-						'queryInfo': queryInfo,
+						'queueItemInfo': queueItemInfo,
 						'tags': cmdOpt.tags,
 						'data': cmdOpt.cmd.join(' ')
 					},
 					function(){
 					}
 				);
+				cmdOpt.id = queueItemInfo.id;
 
 				_this.cmd({
-					'command': cmdOpt,
+					'command': cmdOpt.cmd,
+					'cd': cmdOpt.cdName,
+					'tags': cmdOpt.tags,
+					'queueItemInfo': queueItemInfo,
 					'stdout': function(data){
 						// console.error('onData.', data.toString());
 						gpiBridge(
 							{
 								'command': 'stdout',
-								'queryInfo': queryInfo,
+								'queueItemInfo': queueItemInfo,
 								'tags': cmdOpt.tags,
 								'data': data.toString()
 							},
@@ -47,7 +55,7 @@ module.exports = function(config){
 						gpiBridge(
 							{
 								'command': 'stderr',
-								'queryInfo': queryInfo,
+								'queueItemInfo': queueItemInfo,
 								'tags': cmdOpt.tags,
 								'data': data.toString()
 							},
@@ -60,7 +68,7 @@ module.exports = function(config){
 						gpiBridge(
 							{
 								'command': 'close',
-								'queryInfo': queryInfo,
+								'queueItemInfo': queueItemInfo,
 								'tags': cmdOpt.tags,
 								'data': status
 							},
@@ -76,11 +84,6 @@ module.exports = function(config){
 			}
 		});
 
-	var pathDefaultCurrentDir = process.cwd();
-	var currentDirs = config.cd||{'default': pathDefaultCurrentDir};
-		processor = config.processor||function(cmd, callback){
-			callback(cmd);
-		};
 
 	/**
 	 * GPI
@@ -215,65 +218,49 @@ module.exports = function(config){
 	}
 
 	/**
-	 * コマンド内容をユーザー関数で確認
-	 * 必要に応じて加工済みのコマンドで置き換える。
-	 */
-	function userCheckCommand(cmdAry, callback){
-		config.checkCommand(cmdAry, function(cmdAry){
-			callback(cmdAry);
-		});
-		return;
-	}
-
-	/**
 	 * コマンドを実行する
 	 */
 	this.cmd = function(options){
 		options = options || {};
-		var cmdAry = options.command.cmd || null;
-		if( cmdAry === null ){
-			// コマンドが指定されていない
-			options.complete("ERROR: Command NOT given.");
-			return;
+		options.command = options.command || {};
+		options.stdout = options.stdout || function(){};
+		options.stderr = options.stderr || function(){};
+		options.complete = options.complete || function(){};
+		var tmpCd = options.command.cdName;
+		if( tmpCd ){
+			process.chdir( tmpCd );
 		}
-		if( !isCommandAllowed(cmdAry, allowedCommands) ){
-			// 許可されていないコマンド
-			options.complete("ERROR: Unallowed command.");
-			return;
-		}
-		var tmpCd = options.command.cdName; // 無指定の場合、 `default` を参照する。
-		var cmdTags = options.command.tags || [];
-		userCheckCommand(
-			cmdAry,
-			function(cmdAry){
-				if( !cmdAry ){
+
+		preprocess(
+			options,
+			function(options){
+				if(options === false){
+					return;
+				}
+				var cmdAry = options.command || null;
+				if( cmdAry === null ){
 					// コマンドが指定されていない
+					options.complete("ERROR: Command NOT given.");
+					return;
+				}
+				if( !isCommandAllowed(cmdAry, allowedCommands) ){
+					// 許可されていないコマンド
 					options.complete("ERROR: Unallowed command.");
 					return;
 				}
-				options.stdout = options.stdout || function(){};
-				options.stderr = options.stderr || function(){};
-				options.complete = options.complete || function(){};
-
+				var cmdTags = options.tags || [];
 				var child_process = require('child_process');
-
-				if( tmpCd ){
-					process.chdir( tmpCd );
-				}
-
 				var cmd = cmdAry.shift();
 
 				var proc = require('child_process').spawn(cmd, cmdAry);
-				proc.stdout.on('data', function(data){
-					options.stdout(data);
+				proc.stdout.on('data', function(text){
+					options.stdout(text);
 				});
-				proc.stderr.on('data', function(data){
-					options.stderr(data);
+				proc.stderr.on('data', function(text){
+					options.stderr(text);
 				});
 				proc.on('close', function(code){
-					if( tmpCd ){
-						process.chdir( pathDefaultCurrentDir );
-					}
+					process.chdir( pathDefaultCurrentDir );
 					options.complete(code);
 				});
 
