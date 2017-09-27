@@ -14,8 +14,9 @@ var commandQueue = new CommandQueue(
 					data += result;
 				},
 				'complete': function(){
-					console.log(JSON.parse(data));
-					done();
+					var result = JSON.parse(data);
+					console.log(result);
+					done(result);
 				}
 			});
 		}

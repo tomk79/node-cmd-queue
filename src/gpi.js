@@ -6,18 +6,16 @@ module.exports = function(commandQueue, message, callback){
 	// console.log(message);
 
 	switch(message.command){
+		case 'open':
 		case 'stdout':
 		case 'stderr':
-			commandQueue.sendToTerminals(message, function(){
-				callback();
+		case 'close':
+			commandQueue.sendToTerminals(message, function(result){
+				callback(result);
 			});
 			break;
-		case 'close':
-			// console.log('command closed.', message.queryInfo.id, message.tags);
-			callback();
-			break;
 		default:
-			callback();
+			callback(false);
 			break;
 	}
 	return;

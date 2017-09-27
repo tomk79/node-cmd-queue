@@ -15,6 +15,17 @@ module.exports = function(config){
 				// console.log('=-=-=-=-=-=-=-=-= prosess');
 				// console.log(cmdOpt, queryInfo);
 
+				gpiBridge(
+					{
+						'command': 'open',
+						'queryInfo': queryInfo,
+						'tags': cmdOpt.tags,
+						'data': cmdOpt.cmd.join(' ')
+					},
+					function(){
+					}
+				);
+
 				_this.cmd({
 					'command': cmdOpt,
 					'stdout': function(data){
@@ -44,14 +55,14 @@ module.exports = function(config){
 							}
 						);
 					},
-					'complete': function(){
-						// console.error('onClose.');
+					'complete': function(status){
+						console.error('onClose.', status);
 						gpiBridge(
 							{
 								'command': 'close',
 								'queryInfo': queryInfo,
 								'tags': cmdOpt.tags,
-								'data': ''
+								'data': status
 							},
 							function(){
 								setTimeout(function(){
@@ -222,12 +233,12 @@ module.exports = function(config){
 		var cmdAry = options.command.cmd || null;
 		if( cmdAry === null ){
 			// コマンドが指定されていない
-			options.complete(false);
+			options.complete("ERROR: Command NOT given.");
 			return;
 		}
 		if( !isCommandAllowed(cmdAry, allowedCommands) ){
 			// 許可されていないコマンド
-			options.complete(false);
+			options.complete("ERROR: Unallowed command.");
 			return;
 		}
 		var tmpCd = options.command.cdName; // 無指定の場合、 `default` を参照する。
@@ -235,6 +246,11 @@ module.exports = function(config){
 		userCheckCommand(
 			cmdAry,
 			function(cmdAry){
+				if( !cmdAry ){
+					// コマンドが指定されていない
+					options.complete("ERROR: Unallowed command.");
+					return;
+				}
 				options.stdout = options.stdout || function(){};
 				options.stderr = options.stderr || function(){};
 				options.complete = options.complete || function(){};
@@ -254,11 +270,11 @@ module.exports = function(config){
 				proc.stderr.on('data', function(data){
 					options.stderr(data);
 				});
-				proc.on('close', function(){
+				proc.on('close', function(code){
 					if( tmpCd ){
 						process.chdir( pathDefaultCurrentDir );
 					}
-					options.complete();
+					options.complete(code);
 				});
 
 			}
