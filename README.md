@@ -172,7 +172,7 @@ cmdQueue.addQueueItem(
 
 ## 更新履歴 - Change log
 
-### cmd-queue@0.1.0 (2017-??-??)
+### cmd-queue@0.1.0 (2017-10-16)
 
 - Initial Release.
 

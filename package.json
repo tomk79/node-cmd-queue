@@ -7,14 +7,13 @@
     "start": "node ./tests/app/server/server.js;",
     "up": "node ./tests/app/server/server.js;",
     "preview": "gulp preview;",
-    "submodules-update": "npm install file:submodules/node-iterate79; gulp;",
     "test": "mocha --ui tdd ./tests/"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tomk79/node-cmd-queue.git"
   },
-  "author": "Tomoya Koyanagi",
+  "author": "Tomoya Koyanagi <tomk79@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tomk79/node-cmd-queue/issues"
