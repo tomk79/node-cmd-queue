@@ -80,13 +80,17 @@ module.exports = function(commandQueue, elm, options){
 			return false;
 		}
 		for( var idx in options.tags ){
+			var isMatch = false;
 			for( var idx2 in message.tags ){
 				if( options.tags[idx] == message.tags[idx2] ){
-					return true;
+					isMatch = true;
 				}
 			}
+			if(!isMatch){
+				return false;
+			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
