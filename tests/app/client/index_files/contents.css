@@ -1,7 +1,15 @@
 body{
     font-size: medium;
 }
-#finder1{
+.terminal{
     width: 100%;
     height: 400px;
+}
+ul.menu{
+    padding: 0;
+}
+ul.menu li{
+    display: inline-block;
+    margin: 0 0.3rem;
+    list-style-type: none;
 }

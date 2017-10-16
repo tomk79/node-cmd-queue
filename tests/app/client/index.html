@@ -9,9 +9,9 @@
 	<body>
 
 <h1>Command Queue TEST</h1>
-<ul>
+<ul class="menu">
 	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd']);">pwd</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd'], {cdName:'tests'});">pwd (tests)</button></li>
+	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd'], {cdName:'tests',tags:['pwd-test','test']});">pwd (tests)</button></li>
 	<li><button type="button" onclick="commandQueue.addQueueItem(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
 	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'status']);">git status</button></li>
 	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'log']);">git log</button></li>
@@ -19,7 +19,15 @@
 	<li><button type="button" onclick="commandQueue.addQueueItem(['npm', 'update']);">npm update</button></li>
 	<li><button type="button" onclick="commandQueue.addQueueItem(['preprocess_test']);">preprocess_test</button></li>
 </ul>
-<div id="finder1"></div>
+<div id="finder1" class="terminal"></div>
+<ul class="menu">
+	<li><a href="index.html" target="_blank">Open new window</a></li>
+	<li><button type="button" onclick="createNewTerminal(['ls-test', 'test']);">sub terminal - ls-test&amp;test</button></li>
+	<li><button type="button" onclick="createNewTerminal(['test']);">sub terminal - (test)</button></li>
+	<li><button type="button" onclick="createNewQueueIdTerminal();">sub terminal - queueId</button></li>
+</ul>
+<div id="subTerminal">
+</div>
 
 <!-- Socket.io -->
 <script src="/socket.io/socket.io.js"></script>
@@ -29,6 +37,9 @@
 
 <!-- command-queue.js -->
 <script src="/common/dist/command-queue.js"></script>
+
+<!-- common/script.js -->
+<script src="/common/script.js"></script>
 
 <!-- contents.js -->
 <script src="./index_files/contents.js"></script>

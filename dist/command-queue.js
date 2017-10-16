@@ -10273,8 +10273,8 @@ window.CommandQueue = function(options){
 	/**
 	 * 端末オブジェクトを生成する
 	 */
-	this.createTerminal = function(elm){
-		var terminal = new Terminal(this, elm);
+	this.createTerminal = function(elm, options){
+		var terminal = new Terminal(this, elm, options);
 		terminals.push(terminal);
 		return terminal;
 	}
@@ -10333,12 +10333,26 @@ window.CommandQueue = function(options){
 			'cmd': cmd,
 			'cdName': cdName,
 			'tags': tags
-		}, function(){
-			done();
+		}, function(queueId){
+			done(queueId);
 		});
 
 		return;
 	} // addQueueItem()
+
+	/**
+	 * サーバー上から標準出力履歴を取得する
+	 */
+	this.getOutputLog = function(callback){
+		callback = callback || function(){};
+		gpiBridge({
+			'command': 'get_output_log'
+		}, function(result){
+			// console.log('-------', result);
+			callback(result);
+		});
+		return;
+	}
 
 	/**
 	 * GPI
@@ -10378,21 +10392,38 @@ module.exports = function(commandQueue, message, callback){
 /**
  * command-queue - terminal.js
  */
-module.exports = function(commandQueue, elm){
+module.exports = function(commandQueue, elm, options){
 	var $ = require('jquery');
 	var $elm = $(elm);
 	var memoryLineSizeLimit = 1000; // 表示する最大行数
+	var _this = this;
+	options = options || {};
+	options.queueId = options.queueId || null;
+	options.tags = options.tags || [];
 
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
 
 	var $console = $(elm).find('>.command-queue__console');
 
+	commandQueue.getOutputLog(function(messages){
+		// console.log(messages);
+		for(var idx in messages){
+			_this.write(messages[idx]);
+		}
+	});
+
 	/**
 	 * 新しい行を書き込む
 	 */
 	this.write = function(message){
 		// console.log(message);
+		if( !isMessageMatchQueueId( message ) ){
+			return;
+		}
+		if( !isMessageMatchTags( message ) ){
+			return;
+		}
 		var isDoScrollEnd = isScrollEnd();
 
 		if(message.command == 'open'){
@@ -10433,6 +10464,44 @@ module.exports = function(commandQueue, elm){
 	}
 
 	/**
+	 * 指定 Queue ID にマッチするメッセージか検証する
+	 */
+	function isMessageMatchQueueId(message){
+		if( options.queueId === null ){
+			return true;
+		}
+		if( message.queueItemInfo.id != options.queueId ){
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * タグにマッチするメッセージか検証する
+	 */
+	function isMessageMatchTags(message){
+		if( !options.tags || !options.tags.length ){
+			return true;
+		}
+
+		if( !message.tags || !message.tags.length ){
+			return false;
+		}
+		for( var idx in options.tags ){
+			var isMatch = false;
+			for( var idx2 in message.tags ){
+				if( options.tags[idx] == message.tags[idx2] ){
+					isMatch = true;
+				}
+			}
+			if(!isMatch){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * 新しい行を追加する
 	 */
 	function appendNewRow(type, row){
@@ -10467,8 +10536,11 @@ module.exports = function(commandQueue, elm){
 	function removeNewestRow(){
 		var $rows = $console.find('>div.command-queue__row');
 		var memoryLineSize = $rows.length;
-		$rows.get(memoryLineSize-1).remove();
-		$rows.eq(memoryLineSize-2).find('br').remove();
+		try {
+			$rows.get(memoryLineSize-1).remove();
+			$rows.eq(memoryLineSize-2).find('br').remove();
+		} catch (e) {
+		}
 		appendNewRow();
 		return;
 	}
