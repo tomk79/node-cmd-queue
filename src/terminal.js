@@ -7,6 +7,7 @@ module.exports = function(commandQueue, elm, options){
 	var memoryLineSizeLimit = 1000; // 表示する最大行数
 	var _this = this;
 	options = options || {};
+	options.queueId = options.queueId || null;
 	options.tags = options.tags || [];
 
 	$elm.addClass('command-queue');
@@ -26,6 +27,9 @@ module.exports = function(commandQueue, elm, options){
 	 */
 	this.write = function(message){
 		// console.log(message);
+		if( !isMessageMatchQueueId( message ) ){
+			return;
+		}
 		if( !isMessageMatchTags( message ) ){
 			return;
 		}
@@ -66,6 +70,19 @@ module.exports = function(commandQueue, elm, options){
 			scrollEnd();
 		}
 		return;
+	}
+
+	/**
+	 * 指定 Queue ID にマッチするメッセージか検証する
+	 */
+	function isMessageMatchQueueId(message){
+		if( options.queueId === null ){
+			return true;
+		}
+		if( message.queueItemInfo.id != options.queueId ){
+			return false;
+		}
+		return true;
 	}
 
 	/**

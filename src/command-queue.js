@@ -77,8 +77,8 @@ window.CommandQueue = function(options){
 			'cmd': cmd,
 			'cdName': cdName,
 			'tags': tags
-		}, function(){
-			done();
+		}, function(queueId){
+			done(queueId);
 		});
 
 		return;
