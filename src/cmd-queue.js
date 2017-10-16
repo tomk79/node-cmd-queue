@@ -1,7 +1,7 @@
 /**
- * command-queue.js
+ * cmd-queue.js
  */
-window.CommandQueue = function(options){
+window.CmdQueue = function(options){
 	var $ = require('jquery');
 	var Terminal = require('./terminal.js');
 	var terminals = [];

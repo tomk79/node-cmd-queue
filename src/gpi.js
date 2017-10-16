@@ -1,5 +1,5 @@
 /**
- * command-queue - gpi.js
+ * cmd-queue - gpi.js
  */
 module.exports = function(commandQueue, message, callback){
 	callback = callback || function(){};

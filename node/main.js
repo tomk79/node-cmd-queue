@@ -1,5 +1,5 @@
 /**
- * command-queue - main.js
+ * cmd-queue - main.js
  */
 module.exports = function(config){
 	var _this = this;

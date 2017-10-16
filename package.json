@@ -1,5 +1,5 @@
 {
-  "name": "command-queue",
+  "name": "cmd-queue",
   "version": "0.1.0",
   "description": "コマンドラインタスクの直列処理とウェブアプリUIへの表示など。",
   "main": "node/main.js",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tomk79/node-command-queue.git"
+    "url": "git+https://github.com/tomk79/node-cmd-queue.git"
   },
   "author": "Tomoya Koyanagi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tomk79/node-command-queue/issues"
+    "url": "https://github.com/tomk79/node-cmd-queue/issues"
   },
-  "homepage": "https://github.com/tomk79/node-command-queue#readme",
+  "homepage": "https://github.com/tomk79/node-cmd-queue#readme",
   "dependencies": {
     "es6-promise": "^4.1.0",
     "iterate79": "^1.1.0",

@@ -2,22 +2,22 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>Command Queue - TEST</title>
-		<link rel="stylesheet" href="/common/dist/command-queue.css" />
+		<title>Cmd Queue - TEST</title>
+		<link rel="stylesheet" href="/common/dist/cmd-queue.css" />
 		<link rel="stylesheet" href="index_files/contents.css" />
 	</head>
 	<body>
 
-<h1>Command Queue TEST</h1>
+<h1>Cmd Queue TEST</h1>
 <ul class="menu">
-	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd']);">pwd</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['pwd'], {cdName:'tests',tags:['pwd-test','test']});">pwd (tests)</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'status']);">git status</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'log']);">git log</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['git', 'branch']);">git branch</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['npm', 'update']);">npm update</button></li>
-	<li><button type="button" onclick="commandQueue.addQueueItem(['preprocess_test']);">preprocess_test</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['pwd']);">pwd</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['pwd'], {cdName:'tests',tags:['pwd-test','test']});">pwd (tests)</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['ls', '-la'], {tags:['ls-test','test']});">ls -la</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['git', 'status']);">git status</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['git', 'log']);">git log</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['git', 'branch']);">git branch</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['npm', 'update']);">npm update</button></li>
+	<li><button type="button" onclick="cmdQueue.addQueueItem(['preprocess_test']);">preprocess_test</button></li>
 </ul>
 <div id="finder1" class="terminal"></div>
 <ul class="menu">
@@ -35,8 +35,8 @@
 <!-- jQuery -->
 <script src="/common/jquery/jquery.js"></script>
 
-<!-- command-queue.js -->
-<script src="/common/dist/command-queue.js"></script>
+<!-- cmd-queue.js -->
+<script src="/common/dist/cmd-queue.js"></script>
 
 <!-- common/script.js -->
 <script src="/common/script.js"></script>

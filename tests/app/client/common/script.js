@@ -1,12 +1,12 @@
 var socket = io();
-var commandQueue = new CommandQueue(
+var cmdQueue = new CmdQueue(
 	{
 		'gpiBridge': function(message, done){
 			// クライアントからサーバーへのメッセージ送信を仲介
 
 			var data = '';
 			$.ajax({
-				'url': '/apis/commandQueue',
+				'url': '/apis/cmdQueue',
 				'data': {
 					'message': message
 				},
@@ -25,5 +25,5 @@ var commandQueue = new CommandQueue(
 socket.on('command-queue-message', function(message){
 	// console.log('====== command-queue-message');
 	// console.log(message);
-	commandQueue.gpi(message);
+	cmdQueue.gpi(message);
 });

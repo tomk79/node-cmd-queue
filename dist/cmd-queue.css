@@ -1,23 +1,23 @@
-.command-queue {
+.cmd-queue {
   display: block;
   overflow: auto;
   position: relative;
   min-height: 200px;
   background-color: #f9f9f9; }
-  .command-queue__row {
+  .cmd-queue__row {
     white-space: pre;
     color: #666; }
-    .command-queue__row:hover {
+    .cmd-queue__row:hover {
       background-color: #f3f3f3; }
-  .command-queue__open {
+  .cmd-queue__open {
     font-weight: bold;
     color: #000;
     border-top: 1px solid #999; }
-    .command-queue__open::before {
+    .cmd-queue__open::before {
       content: "$ "; }
-  .command-queue__close {
+  .cmd-queue__close {
     color: #000;
     text-align: center;
     font-size: 60%; }
-  .command-queue__err {
+  .cmd-queue__err {
     color: #f00; }

@@ -9,7 +9,7 @@ var rename = require("gulp-rename");//ファイル名の置き換えを行う
 var browserify = require("gulp-browserify");//NodeJSのコードをブラウザ向けコードに変換
 var packageJson = require(__dirname+'/package.json');
 var _tasks = [
-	'command-queue.js',
+	'cmd-queue.js',
 	'.css.scss'
 ];
 
@@ -37,14 +37,14 @@ gulp.task('.css.scss', function(){
 	;
 });
 
-// command-queue.js (frontend) を処理
-gulp.task("command-queue.js", function() {
-	gulp.src(["src/command-queue.js"])
+// cmd-queue.js (frontend) を処理
+gulp.task("cmd-queue.js", function() {
+	gulp.src(["src/cmd-queue.js"])
 		.pipe(plumber())
 		.pipe(browserify({}))
-		.pipe(concat('command-queue.js'))
+		.pipe(concat('cmd-queue.js'))
 		.pipe(gulp.dest( './dist/' ))
-		.pipe(concat('command-queue.min.js'))
+		.pipe(concat('cmd-queue.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest( './dist/' ))
 	;

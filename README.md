@@ -1,10 +1,13 @@
-# command-queue
+# cmd-queue
 
 コマンドラインタスクの直列処理とウェブアプリUIへの表示など。
 
 ## インストール - Install
 
-準備中です。
+```
+npm install --save cmd-queue
+```
+
 
 ## 使い方 - Usage
 
@@ -16,8 +19,8 @@ var express = require('express'),
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var CommandQueue = require('command-queue');
-var commandQueue = new CommandQueue({
+var CmdQueue = require('cmd-queue');
+var cmdQueue = new CmdQueue({
 	'cd': {
 		// コマンドを実行するときのカレントディレクトリの一覧
 		// クライアント側から直接パスを指定できないよう、パスと名前の対として管理します。
@@ -40,22 +43,22 @@ var commandQueue = new CommandQueue({
 	},
 	'gpiBridge': function(message, done){
 		// サーバーからクライアントへのメッセージ送信を仲介
-		io.emit('command-queue-message', message);
+		io.emit('cmd-queue-message', message);
 		done();
 		return;
 	}
 });
 
-app.use( '/path/to/command-queue/', express.static( '/path/to/node_modules/command-queue/' ) );
+app.use( '/path/to/cmd-queue/', express.static( '/path/to/node_modules/cmd-queue/' ) );
 
-app.use( '/apis/commandQueue', function(req, res, next){
+app.use( '/apis/cmdQueue', function(req, res, next){
 	res
 		.status(200)
 		.set('Content-Type', 'text/plain')
 	;
 
 	// クライアントから受け取ったメッセージをGPIへ送る
-	commandQueue.gpi(req.query.message, function(result){
+	cmdQueue.gpi(req.query.message, function(result){
 		res.write( JSON.stringify(result) );
 		res.flushHeaders();
 		res.end();
@@ -76,9 +79,9 @@ server.listen( 3000, function(){
 <!DOCTYPE html>
 <html>
 <head>
-<title>CommandQueue DEMO</title>
-<!-- command-queue.css -->
-<link rel="stylesheet" href="/path/to/command-queue/dist/command-queue.css" />
+<title>CmdQueue DEMO</title>
+<!-- cmd-queue.css -->
+<link rel="stylesheet" href="/path/to/cmd-queue/dist/cmd-queue.css" />
 </head>
 <body>
 
@@ -87,19 +90,19 @@ server.listen( 3000, function(){
 <!-- Socket.io (required) -->
 <script src="/socket.io/socket.io.js"></script>
 
-<!-- command-queue.js -->
-<script src="/path/to/command-queue/dist/command-queue.js"></script>
+<!-- cmd-queue.js -->
+<script src="/path/to/cmd-queue/dist/cmd-queue.js"></script>
 
 <script>
 var socket = io();
-var commandQueue = new CommandQueue(
+var cmdQueue = new CmdQueue(
 	{
 		'gpiBridge': function(message, done){
 			// クライアントからサーバーへのメッセージ送信を仲介
 
 			var data = '';
 			$.ajax({
-				'url': '/apis/commandQueue',
+				'url': '/apis/cmdQueue',
 				'data': {
 					'message': message
 				},
@@ -114,22 +117,22 @@ var commandQueue = new CommandQueue(
 		}
 	}
 );
-socket.on('command-queue-message', function(message){
-	commandQueue.gpi(message);
+socket.on('cmd-queue-message', function(message){
+	cmdQueue.gpi(message);
 });
 
 // 端末を生成する
-var terminal = commandQueue.createTerminal( document.getElementById('finder1') );
+var terminal = cmdQueue.createTerminal( document.getElementById('finder1') );
 
 // 新しいキューを追加する
-commandQueue.addQueueItem(['pwd']);
+cmdQueue.addQueueItem(['pwd']);
 
 </script>
 </body>
 </html>
 ```
 
-### commandQueue コンストラクタオプション
+### cmdQueue コンストラクタオプション
 
 #### gpiBridge
 
@@ -139,7 +142,7 @@ commandQueue.addQueueItem(['pwd']);
 
 ```js
 // 端末を生成する
-var terminal = commandQueue.createTerminal(
+var terminal = cmdQueue.createTerminal(
 	document.getElementById('finder1'), // 端末を表示するためのDOM要素
 	{ // Options
 		'queueId': queueId, // Queue ID でフィルタリングする
@@ -152,7 +155,7 @@ var terminal = commandQueue.createTerminal(
 
 ```js
 // 新しいキューを追加する
-commandQueue.addQueueItem(
+cmdQueue.addQueueItem(
 	['ls', '-la'], //　コマンド(CLIオプションはスペース区切りで配列要素に追加する)
 	{
 		'cdName': 'tests', // コマンド実行時のカレントディレクトリ。サーバーサイドのオプション `cd` と突き合わせられる。
@@ -169,7 +172,7 @@ commandQueue.addQueueItem(
 
 ## 更新履歴 - Change log
 
-### command-queue@0.1.0 (2017-??-??)
+### cmd-queue@0.1.0 (2017-??-??)
 
 - Initial Release.
 
