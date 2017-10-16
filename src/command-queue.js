@@ -17,8 +17,8 @@ window.CommandQueue = function(options){
 	/**
 	 * 端末オブジェクトを生成する
 	 */
-	this.createTerminal = function(elm){
-		var terminal = new Terminal(this, elm);
+	this.createTerminal = function(elm, options){
+		var terminal = new Terminal(this, elm, options);
 		terminals.push(terminal);
 		return terminal;
 	}
@@ -92,7 +92,7 @@ window.CommandQueue = function(options){
 		gpiBridge({
 			'command': 'get_output_log'
 		}, function(result){
-			console.log('-------', result);
+			// console.log('-------', result);
 			callback(result);
 		});
 		return;

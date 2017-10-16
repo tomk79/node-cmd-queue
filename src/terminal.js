@@ -1,11 +1,13 @@
 /**
  * command-queue - terminal.js
  */
-module.exports = function(commandQueue, elm){
+module.exports = function(commandQueue, elm, options){
 	var $ = require('jquery');
 	var $elm = $(elm);
 	var memoryLineSizeLimit = 1000; // 表示する最大行数
 	var _this = this;
+	options = options || {};
+	options.tags = options.tags || [];
 
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
@@ -13,7 +15,7 @@ module.exports = function(commandQueue, elm){
 	var $console = $(elm).find('>.command-queue__console');
 
 	commandQueue.getOutputLog(function(messages){
-		console.log(messages);
+		// console.log(messages);
 		for(var idx in messages){
 			_this.write(messages[idx]);
 		}
@@ -24,6 +26,9 @@ module.exports = function(commandQueue, elm){
 	 */
 	this.write = function(message){
 		// console.log(message);
+		if( !isMessageMatchTags( message ) ){
+			return;
+		}
 		var isDoScrollEnd = isScrollEnd();
 
 		if(message.command == 'open'){
@@ -61,6 +66,27 @@ module.exports = function(commandQueue, elm){
 			scrollEnd();
 		}
 		return;
+	}
+
+	/**
+	 * タグにマッチするメッセージか検証する
+	 */
+	function isMessageMatchTags(message){
+		if( !options.tags || !options.tags.length ){
+			return true;
+		}
+
+		if( !message.tags || !message.tags.length ){
+			return false;
+		}
+		for( var idx in options.tags ){
+			for( var idx2 in message.tags ){
+				if( options.tags[idx] == message.tags[idx2] ){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
