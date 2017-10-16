@@ -226,7 +226,7 @@ module.exports = function(config){
 		options.stdout = options.stdout || function(){};
 		options.stderr = options.stderr || function(){};
 		options.complete = options.complete || function(){};
-		var tmpCd = options.command.cdName;
+		var tmpCd = options.cd;
 		if( tmpCd ){
 			process.chdir( tmpCd );
 		}
