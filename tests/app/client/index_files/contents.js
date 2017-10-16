@@ -13,7 +13,7 @@ function createNewTerminal(tags){
 
 function createNewQueueIdTerminal(){
     commandQueue.addQueueItem(['ls', '-la'], {
-        'done': function(queueId){
+        'accept': function(queueId){
             var $target = $('#subTerminal');
             var terminal = document.createElement('div');
             $target.html('').append(terminal);

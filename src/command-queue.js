@@ -70,7 +70,7 @@ window.CommandQueue = function(options){
 		options = options || {};
 		var cdName = options.cdName || undefined;
 		var tags = options.tags || [];
-		var done = options.done || function(){};
+		var accept = options.accept || function(){};
 
 		gpiBridge({
 			'command': 'add_queue_item',
@@ -78,7 +78,7 @@ window.CommandQueue = function(options){
 			'cdName': cdName,
 			'tags': tags
 		}, function(queueId){
-			done(queueId);
+			accept(queueId);
 		});
 
 		return;
