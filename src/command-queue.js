@@ -85,6 +85,20 @@ window.CommandQueue = function(options){
 	} // addQueueItem()
 
 	/**
+	 * サーバー上から標準出力履歴を取得する
+	 */
+	this.getOutputLog = function(callback){
+		callback = callback || function(){};
+		gpiBridge({
+			'command': 'get_output_log'
+		}, function(result){
+			console.log('-------', result);
+			callback(result);
+		});
+		return;
+	}
+
+	/**
 	 * GPI
 	 * サーバーからのメッセージを受けて処理する
 	 */

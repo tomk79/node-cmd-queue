@@ -11,6 +11,8 @@ module.exports = function(config){
 			callback(cmd);
 		};
 	var gpiBridge = config.gpiBridge||function(){};
+	var outputLog = [];
+	var maxOutputLogMessageCount = 1000;
 
 	var it79 = require('iterate79'),
 		queue = new it79.queue({
@@ -19,15 +21,16 @@ module.exports = function(config){
 				// console.log('=-=-=-=-=-=-=-=-= prosess');
 				// console.log(cmdOpt, queueItemInfo);
 
+				var openMsg = {
+					'command': 'open',
+					'queueItemInfo': queueItemInfo,
+					'tags': cmdOpt.tags,
+					'data': cmdOpt.cmd.join(' ')
+				};
+				outputLogPush(openMsg);
 				gpiBridge(
-					{
-						'command': 'open',
-						'queueItemInfo': queueItemInfo,
-						'tags': cmdOpt.tags,
-						'data': cmdOpt.cmd.join(' ')
-					},
-					function(){
-					}
+					openMsg,
+					function(){}
 				);
 				cmdOpt.id = queueItemInfo.id;
 
@@ -38,40 +41,44 @@ module.exports = function(config){
 					'queueItemInfo': queueItemInfo,
 					'stdout': function(data){
 						// console.error('onData.', data.toString());
+						var msg = {
+							'command': 'stdout',
+							'queueItemInfo': queueItemInfo,
+							'tags': cmdOpt.tags,
+							'data': data.toString()
+						};
+						outputLogPush(msg);
 						gpiBridge(
-							{
-								'command': 'stdout',
-								'queueItemInfo': queueItemInfo,
-								'tags': cmdOpt.tags,
-								'data': data.toString()
-							},
-							function(){
-							}
+							msg,
+							function(){}
 						);
 
 					},
 					'stderr': function(data){
 						// console.error('onError.', data.toString());
+						var msg = {
+							'command': 'stderr',
+							'queueItemInfo': queueItemInfo,
+							'tags': cmdOpt.tags,
+							'data': data.toString()
+						};
+						outputLogPush(msg);
 						gpiBridge(
-							{
-								'command': 'stderr',
-								'queueItemInfo': queueItemInfo,
-								'tags': cmdOpt.tags,
-								'data': data.toString()
-							},
-							function(){
-							}
+							msg,
+							function(){}
 						);
 					},
 					'complete': function(status){
 						// console.error('onClose.', status);
+						var msg = {
+							'command': 'close',
+							'queueItemInfo': queueItemInfo,
+							'tags': cmdOpt.tags,
+							'data': status
+						};
+						outputLogPush(msg);
 						gpiBridge(
-							{
-								'command': 'close',
-								'queueItemInfo': queueItemInfo,
-								'tags': cmdOpt.tags,
-								'data': status
-							},
+							msg,
 							function(){
 								setTimeout(function(){
 									done();
@@ -94,6 +101,16 @@ module.exports = function(config){
 		var Gpi = require('./gpi.js');
 		return Gpi(this, message, callback);
 	};
+
+	/**
+	 * 出力ログに行を追加する
+	 */
+	function outputLogPush(msg){
+		if( outputLog.length >= maxOutputLogMessageCount ){
+			outputLog.shift(); // 上限を超えていたら、先頭の1件を削除する
+		}
+		return outputLog.push(msg);
+	}
 
 	/**
 	 * 許可されたコマンドかどうか確認する
@@ -215,6 +232,13 @@ module.exports = function(config){
 		var queueId = queue.push(params);
 		callback(queueId);
 		return;
+	}
+
+	/**
+	 * 標準出力ログを取得する
+	 */
+	this.getOutputLog = function(){
+		return outputLog;
 	}
 
 	/**

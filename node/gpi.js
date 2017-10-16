@@ -10,6 +10,10 @@ module.exports = function(commandQueue, message, callback){
 				callback(result);
 			});
 			break;
+		case 'get_output_log':
+			var rtn = commandQueue.getOutputLog();
+			callback(rtn);
+			break;
 		default:
 			callback(false);
 			break;

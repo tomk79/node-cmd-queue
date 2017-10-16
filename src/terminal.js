@@ -5,11 +5,19 @@ module.exports = function(commandQueue, elm){
 	var $ = require('jquery');
 	var $elm = $(elm);
 	var memoryLineSizeLimit = 1000; // 表示する最大行数
+	var _this = this;
 
 	$elm.addClass('command-queue');
 	$elm.append('<div class="command-queue__console">');
 
 	var $console = $(elm).find('>.command-queue__console');
+
+	commandQueue.getOutputLog(function(messages){
+		console.log(messages);
+		for(var idx in messages){
+			_this.write(messages[idx]);
+		}
+	});
 
 	/**
 	 * 新しい行を書き込む
@@ -90,8 +98,11 @@ module.exports = function(commandQueue, elm){
 	function removeNewestRow(){
 		var $rows = $console.find('>div.command-queue__row');
 		var memoryLineSize = $rows.length;
-		$rows.get(memoryLineSize-1).remove();
-		$rows.eq(memoryLineSize-2).find('br').remove();
+		try {
+			$rows.get(memoryLineSize-1).remove();
+			$rows.eq(memoryLineSize-2).find('br').remove();
+		} catch (e) {
+		}
 		appendNewRow();
 		return;
 	}
