@@ -165,12 +165,28 @@ cmdQueue.addQueueItem(
 			// 注意: キューに追加した時点で呼ばれます。コマンドの実行完了イベントではありません。
 			// 発行したキューのID文字列が返されます。
 			console.log(queueId);
+		},
+		'open': function(message){
+			// 登録したキューが実行開始されるときに呼ばれるコールバック
+		},
+		'stdout': function(message){
+			// 登録したコマンドの標準出力を受け取るコールバック
+		},
+		'stderr': function(message){
+			// 登録したコマンドの標準エラー出力を受け取るコールバック
+		},
+		'close': function(message){
+			// 登録したコマンドが実行完了したときに呼ばれるコールバック
 		}
 	}
 );
 ```
 
 ## 更新履歴 - Change log
+
+### cmd-queue@0.1.1 (2017-??-??)
+
+- `cmdQueue.addQueueItem()` に、オプション `open`, `stdout`, `stderr`, `close` を追加。
 
 ### cmd-queue@0.1.0 (2017-10-16)
 

@@ -5,6 +5,7 @@ window.CmdQueue = function(options){
 	var $ = require('jquery');
 	var Terminal = require('./terminal.js');
 	var terminals = [];
+	var queueItemCallbacks = new (require('./queueItemCallback.js'))(this);
 
 	// オプションの正規化
 	options = options||{};
@@ -30,6 +31,7 @@ window.CmdQueue = function(options){
 		// console.log(message);
 
 		if(message.command == 'open' || message.command == 'close'){
+			queueItemCallbacks.trigger(message);
 			for(var idx in terminals){
 				terminals[idx].write(message);
 			}
@@ -57,6 +59,7 @@ window.CmdQueue = function(options){
 
 		message.data = dataAry;
 
+		queueItemCallbacks.trigger(message);
 		for(var idx in terminals){
 			terminals[idx].write(message);
 		}
@@ -72,11 +75,14 @@ window.CmdQueue = function(options){
 		var tags = options.tags || [];
 		var accept = options.accept || function(){};
 
+		var queueItemCallbackId = queueItemCallbacks.addListener(options);
+
 		gpiBridge({
 			'command': 'add_queue_item',
 			'cmd': cmd,
 			'cdName': cdName,
-			'tags': tags
+			'tags': tags,
+			'queueItemCallbackId': queueItemCallbackId
 		}, function(queueId){
 			accept(queueId);
 		});

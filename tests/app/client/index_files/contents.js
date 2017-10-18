@@ -21,6 +21,12 @@ function createNewQueueIdTerminal(){
                 'queueId': queueId
             } );
             $(terminal).addClass('terminal');
+        },
+        'open': function(message){},
+        'stdout': function(message){},
+        'stderr': function(message){},
+        'close': function(message){
+            console.info('Completed.', message);
         }
     });
 }

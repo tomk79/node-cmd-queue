@@ -2,6 +2,7 @@
  * cmd-queue - main.js
  */
 module.exports = function(config){
+	var Promise = require("es6-promise").Promise;
 	var _this = this;
 	config = config||{};
 	var allowedCommands = config.allowedCommands||[];
@@ -25,7 +26,8 @@ module.exports = function(config){
 					'command': 'open',
 					'queueItemInfo': queueItemInfo,
 					'tags': cmdOpt.tags,
-					'data': cmdOpt.cmd.join(' ')
+					'data': cmdOpt.cmd.join(' '),
+					'queueItemCallbackId': cmdOpt.queueItemCallbackId
 				};
 				outputLogPush(openMsg);
 				gpiBridge(
@@ -45,7 +47,8 @@ module.exports = function(config){
 							'command': 'stdout',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
-							'data': data.toString()
+							'data': data.toString(),
+							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};
 						outputLogPush(msg);
 						gpiBridge(
@@ -60,7 +63,8 @@ module.exports = function(config){
 							'command': 'stderr',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
-							'data': data.toString()
+							'data': data.toString(),
+							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};
 						outputLogPush(msg);
 						gpiBridge(
@@ -74,7 +78,8 @@ module.exports = function(config){
 							'command': 'close',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
-							'data': status
+							'data': status,
+							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};
 						outputLogPush(msg);
 						gpiBridge(
@@ -224,13 +229,17 @@ module.exports = function(config){
 	 */
 	this.query = function(params, callback){
 		callback = callback || function(){};
-		if(params.cdName){
-			params.cdName = currentDirs[params.cdName];
-		}else{
-			params.cdName = currentDirs['default'];
-		}
-		var queueId = queue.push(params);
-		callback(queueId);
+
+		new Promise(function(rlv){rlv();}).then(function(){ return new Promise(function(rlv, rjt){
+			if(params.cdName){
+				params.cdName = currentDirs[params.cdName];
+			}else{
+				params.cdName = currentDirs['default'];
+			}
+			var queueId = queue.push(params);
+
+			callback(queueId);
+		}); });
 		return;
 	}
 
