@@ -259,10 +259,6 @@ module.exports = function(config){
 		options.stdout = options.stdout || function(){};
 		options.stderr = options.stderr || function(){};
 		options.complete = options.complete || function(){};
-		var tmpCd = options.cd;
-		if( tmpCd ){
-			process.chdir( tmpCd );
-		}
 
 		preprocess(
 			options,
@@ -285,6 +281,11 @@ module.exports = function(config){
 				var child_process = require('child_process');
 				var cmd = cmdAry.shift();
 
+				var tmpCd = options.cd;
+				if( tmpCd ){
+					process.chdir( tmpCd );
+				}
+
 				var proc = require('child_process').spawn(cmd, cmdAry);
 				proc.stdout.on('data', function(text){
 					options.stdout(text);
@@ -293,9 +294,10 @@ module.exports = function(config){
 					options.stderr(text);
 				});
 				proc.on('close', function(code){
-					process.chdir( pathDefaultCurrentDir );
 					options.complete(code);
 				});
+
+				process.chdir( pathDefaultCurrentDir );
 
 			}
 		);
