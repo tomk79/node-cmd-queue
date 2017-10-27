@@ -15,7 +15,7 @@ module.exports = function(commandQueue, elm, options){
 
 	var $console = $(elm).find('>.cmd-queue__console');
 
-	commandQueue.getOutputLog(function(messages){
+	commandQueue.getOutputLog({'queueId': options.queueId, 'tags':options.tags}, function(messages){
 		// console.log(messages);
 		for(var idx in messages){
 			_this.write(messages[idx]);
@@ -26,11 +26,7 @@ module.exports = function(commandQueue, elm, options){
 	 * 新しい行を書き込む
 	 */
 	this.write = function(message){
-		// console.log(message);
-		if( !isMessageMatchQueueId( message ) ){
-			return;
-		}
-		if( !isMessageMatchTags( message ) ){
+		if( !commandQueue.isMessageMatchTerminalConditions({'queueId': options.queueId, 'tags':options.tags}, message) ){
 			return;
 		}
 		var isDoScrollEnd = isScrollEnd();
@@ -70,44 +66,6 @@ module.exports = function(commandQueue, elm, options){
 			scrollEnd();
 		}
 		return;
-	}
-
-	/**
-	 * 指定 Queue ID にマッチするメッセージか検証する
-	 */
-	function isMessageMatchQueueId(message){
-		if( options.queueId === null ){
-			return true;
-		}
-		if( message.queueItemInfo.id != options.queueId ){
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * タグにマッチするメッセージか検証する
-	 */
-	function isMessageMatchTags(message){
-		if( !options.tags || !options.tags.length ){
-			return true;
-		}
-
-		if( !message.tags || !message.tags.length ){
-			return false;
-		}
-		for( var idx in options.tags ){
-			var isMatch = false;
-			for( var idx2 in message.tags ){
-				if( options.tags[idx] == message.tags[idx2] ){
-					isMatch = true;
-				}
-			}
-			if(!isMatch){
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**

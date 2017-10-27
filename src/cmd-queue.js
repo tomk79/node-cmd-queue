@@ -2,6 +2,7 @@
  * cmd-queue.js
  */
 window.CmdQueue = function(options){
+	var _this = this;
 	var $ = require('jquery');
 	var Terminal = require('./terminal.js');
 	var terminals = [];
@@ -28,8 +29,6 @@ window.CmdQueue = function(options){
 	 * 端末にメッセージを送信する
 	 */
 	this.sendToTerminals = function(message){
-		// console.log(message);
-
 		if(message.command == 'open' || message.command == 'close'){
 			queueItemCallbacks.trigger(message);
 			for(var idx in terminals){
@@ -93,15 +92,71 @@ window.CmdQueue = function(options){
 	/**
 	 * サーバー上から標準出力履歴を取得する
 	 */
-	this.getOutputLog = function(callback){
+	this.getOutputLog = function(cond, callback){
 		callback = callback || function(){};
 		gpiBridge({
 			'command': 'get_output_log'
-		}, function(result){
-			// console.log('-------', result);
-			callback(result);
+		}, function(messages){
+			var rtn = [];
+			for(var idx in messages){
+				if(!_this.isMessageMatchTerminalConditions(cond, messages[idx])){
+					continue;
+				}
+				rtn.push(messages[idx]);
+			}
+			callback(rtn);
 		});
 		return;
+	}
+
+	/**
+	 * メッセージが端末の要求する条件に合致するか調べる
+	 */
+	this.isMessageMatchTerminalConditions = function(cond, message){
+		if(!isMessageMatchQueueId(cond, message)){
+			return false;
+		}
+		if(!isMessageMatchTags(cond, message)){
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 指定 Queue ID にマッチするメッセージか検証する
+	 */
+	function isMessageMatchQueueId(cond, message){
+		if( cond.queueId === null ){
+			return true;
+		}
+		if( message.queueItemInfo.id != cond.queueId ){
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * タグにマッチするメッセージか検証する
+	 */
+	function isMessageMatchTags(cond, message){
+		if( !cond.tags || !cond.tags.length ){
+			return true;
+		}
+		if( !message.tags || !message.tags.length ){
+			return false;
+		}
+		for( var idx in cond.tags ){
+			var isMatch = false;
+			for( var idx2 in message.tags ){
+				if( cond.tags[idx] == message.tags[idx2] ){
+					isMatch = true;
+				}
+			}
+			if(!isMatch){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
