@@ -53,6 +53,10 @@ module.exports = function(opts){
 			.set('Content-Type', 'text/plain')
 		;
 
+		// アプリケーションの拡張項目
+		req.query.message.extra = req.query.message.extra || {};
+		req.query.message.extra.extraServerValue = 'test-value';
+
 		// クライアントから受け取ったメッセージをGPIへ送る
 		commandQueue.gpi(req.query.message, function(result){
 			// console.error('onClose.');

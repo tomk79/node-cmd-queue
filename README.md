@@ -189,6 +189,7 @@ cmdQueue.addQueueItem(
 - `cmdQueue.addQueueItem()` に、オプション `open`, `stdout`, `stderr`, `close` を追加。
 - メッセージを条件チェックする `cmdQueue.isMessageMatchTerminalConditions()` を追加。
 - `cmdQueue.getOutputLog()` の第1引数に条件を受け取るように変更。
+- アプリケーションの拡張項目 `extra` を利用できるようになった。
 
 ### cmd-queue@0.1.0 (2017-10-16)
 

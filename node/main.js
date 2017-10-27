@@ -26,6 +26,7 @@ module.exports = function(config){
 					'command': 'open',
 					'queueItemInfo': queueItemInfo,
 					'tags': cmdOpt.tags,
+					'extra': cmdOpt.extra,
 					'data': cmdOpt.cmd.join(' '),
 					'queueItemCallbackId': cmdOpt.queueItemCallbackId
 				};
@@ -41,12 +42,14 @@ module.exports = function(config){
 					'cd': cmdOpt.cdName,
 					'tags': cmdOpt.tags,
 					'queueItemInfo': queueItemInfo,
+					'extra': cmdOpt.extra,
 					'stdout': function(data){
 						// console.error('onData.', data.toString());
 						var msg = {
 							'command': 'stdout',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
+							'extra': cmdOpt.extra,
 							'data': data.toString(),
 							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};
@@ -63,6 +66,7 @@ module.exports = function(config){
 							'command': 'stderr',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
+							'extra': cmdOpt.extra,
 							'data': data.toString(),
 							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};
@@ -78,6 +82,7 @@ module.exports = function(config){
 							'command': 'close',
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
+							'extra': cmdOpt.extra,
 							'data': status,
 							'queueItemCallbackId': cmdOpt.queueItemCallbackId
 						};

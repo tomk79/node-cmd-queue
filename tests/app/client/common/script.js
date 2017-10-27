@@ -4,6 +4,10 @@ var cmdQueue = new CmdQueue(
 		'gpiBridge': function(message, done){
 			// クライアントからサーバーへのメッセージ送信を仲介
 
+			// アプリケーションの拡張項目
+			message.extra = message.extra || {};
+			message.extra.extraClientValue = 'client-test-value';
+
 			var data = '';
 			$.ajax({
 				'url': '/apis/cmdQueue',
