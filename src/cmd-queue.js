@@ -29,7 +29,7 @@ window.CmdQueue = function(options){
 	 * 端末にメッセージを送信する
 	 */
 	this.sendToTerminals = function(message){
-		if(message.command == 'open' || message.command == 'close'){
+		if(message.command == 'open' || message.command == 'close' || message.command == 'add_queue_item'){
 			queueItemCallbacks.trigger(message);
 			for(var idx in terminals){
 				terminals[idx].write(message);

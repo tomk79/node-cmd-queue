@@ -31,6 +31,14 @@ module.exports = function(commandQueue, elm, options){
 		}
 		var isDoScrollEnd = isScrollEnd();
 
+		if(message.command == 'add_queue_item'){
+			console.log('add_queue_item message', message);//TODO: 端末に処理待ちの行を追加する予定
+			if(isDoScrollEnd){
+				scrollEnd();
+			}
+			return;
+		}
+
 		if(message.command == 'open'){
 			appendNewRow('open', message.data);
 			appendNewRow('row');

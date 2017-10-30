@@ -13,6 +13,7 @@ module.exports = function(config){
 		};
 	var gpiBridge = config.gpiBridge||function(){};
 	var outputLog = [];
+	var addQueueItemLog = {};
 	var maxOutputLogMessageCount = 100;
 
 	var it79 = require('iterate79'),
@@ -24,6 +25,8 @@ module.exports = function(config){
 
 				var openMsg = {
 					'command': 'open',
+					'cmd': cmdOpt.cmd,
+					'cd': cmdOpt.cdName,
 					'queueItemInfo': queueItemInfo,
 					'tags': cmdOpt.tags,
 					'extra': cmdOpt.extra,
@@ -47,6 +50,8 @@ module.exports = function(config){
 						// console.error('onData.', data.toString());
 						var msg = {
 							'command': 'stdout',
+							'cmd': cmdOpt.cmd,
+							'cd': cmdOpt.cdName,
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
 							'extra': cmdOpt.extra,
@@ -64,6 +69,8 @@ module.exports = function(config){
 						// console.error('onError.', data.toString());
 						var msg = {
 							'command': 'stderr',
+							'cmd': cmdOpt.cmd,
+							'cd': cmdOpt.cdName,
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
 							'extra': cmdOpt.extra,
@@ -80,6 +87,8 @@ module.exports = function(config){
 						// console.error('onClose.', status);
 						var msg = {
 							'command': 'close',
+							'cmd': cmdOpt.cmd,
+							'cd': cmdOpt.cdName,
 							'queueItemInfo': queueItemInfo,
 							'tags': cmdOpt.tags,
 							'extra': cmdOpt.extra,
@@ -90,9 +99,7 @@ module.exports = function(config){
 						gpiBridge(
 							msg,
 							function(){
-								setTimeout(function(){
-									done();
-								}, 0);
+								done();
 							}
 						);
 					}
@@ -243,7 +250,24 @@ module.exports = function(config){
 			}
 			var queueId = queue.push(params);
 
-			callback(queueId);
+			addQueueItemLog[queueId] = params;
+			gpiBridge(
+				{
+					"command": "add_queue_item",
+					'cmd': params.cmd,
+					'cd': params.cdName,
+					'queueItemInfo': {
+						'id': queueId
+					},
+					'tags': params.tags,
+					'extra': params.extra,
+					'data': params.cmd,
+					'queueItemCallbackId': params.queueItemCallbackId
+				},
+				function(){}
+			);
+			callback(queueId); // gpiBridgeの完了を待たず返す
+
 		}); });
 		return;
 	}
@@ -252,7 +276,15 @@ module.exports = function(config){
 	 * 標準出力ログを取得する
 	 */
 	this.getOutputLog = function(){
-		return outputLog;
+		var rtn = JSON.parse(JSON.stringify(outputLog));
+		var queueItemStatus = queue.getAllStatus();
+		for(var idx in queueItemStatus){
+			if(queueItemStatus[idx] == 2 || !addQueueItemLog[idx]){
+				continue;
+			}
+			rtn.push(addQueueItemLog[idx]);
+		}
+		return rtn;
 	}
 
 	/**
@@ -299,6 +331,7 @@ module.exports = function(config){
 					options.stderr(text);
 				});
 				proc.on('close', function(code){
+					addQueueItemLog[options.queueItemInfo.id] = undefined; delete(addQueueItemLog[options.queueItemInfo.id]);
 					options.complete(code);
 				});
 

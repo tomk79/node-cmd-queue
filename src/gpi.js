@@ -6,6 +6,7 @@ module.exports = function(commandQueue, message, callback){
 	// console.log(message);
 
 	switch(message.command){
+		case 'add_queue_item':
 		case 'open':
 		case 'stdout':
 		case 'stderr':
@@ -15,6 +16,7 @@ module.exports = function(commandQueue, message, callback){
 			});
 			break;
 		default:
+			console.error('ERROR: Unknown Command', message);
 			callback(false);
 			break;
 	}

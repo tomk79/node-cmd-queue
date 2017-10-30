@@ -12126,7 +12126,7 @@ window.CmdQueue = function(options){
 	 * 端末にメッセージを送信する
 	 */
 	this.sendToTerminals = function(message){
-		if(message.command == 'open' || message.command == 'close'){
+		if(message.command == 'open' || message.command == 'close' || message.command == 'add_queue_item'){
 			queueItemCallbacks.trigger(message);
 			for(var idx in terminals){
 				terminals[idx].write(message);
@@ -12275,6 +12275,7 @@ module.exports = function(commandQueue, message, callback){
 	// console.log(message);
 
 	switch(message.command){
+		case 'add_queue_item':
 		case 'open':
 		case 'stdout':
 		case 'stderr':
@@ -12284,6 +12285,7 @@ module.exports = function(commandQueue, message, callback){
 			});
 			break;
 		default:
+			console.error('ERROR: Unknown Command', message);
 			callback(false);
 			break;
 	}
@@ -12393,6 +12395,14 @@ module.exports = function(commandQueue, elm, options){
 			return;
 		}
 		var isDoScrollEnd = isScrollEnd();
+
+		if(message.command == 'add_queue_item'){
+			console.log('add_queue_item message', message);//TODO: 端末に処理待ちの行を追加する予定
+			if(isDoScrollEnd){
+				scrollEnd();
+			}
+			return;
+		}
 
 		if(message.command == 'open'){
 			appendNewRow('open', message.data);
