@@ -11,7 +11,7 @@ module.exports = function(commandQueue, message, callback){
 			});
 			break;
 		case 'kill_queue_item':
-			commandQueue.kill(message.queueItemId, function(result){
+			commandQueue.kill(message.queueId, function(result){
 				callback(result);
 			});
 			break;

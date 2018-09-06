@@ -257,16 +257,16 @@ module.exports = function(config){
 			}else{
 				params.cdName = currentDirs['default'];
 			}
-			var queueItemId = queue.push(params);
+			var queueId = queue.push(params);
 
-			addQueueItemLog[queueItemId] = params;
+			addQueueItemLog[queueId] = params;
 			gpiBridge(
 				{
 					"command": "add_queue_item",
 					'cmd': params.cmd,
 					'cd': params.cdName,
 					'queueItemInfo': {
-						'id': queueItemId
+						'id': queueId
 					},
 					'tags': params.tags,
 					'extra': params.extra,
@@ -275,7 +275,7 @@ module.exports = function(config){
 				},
 				function(){}
 			);
-			callback(queueItemId); // gpiBridgeの完了を待たず返す
+			callback(queueId); // gpiBridgeの完了を待たず返す
 
 		}); });
 		return;
@@ -355,26 +355,27 @@ module.exports = function(config){
 	/**
 	 * コマンドを中断する
 	 */
-	this.kill = function(queueItemId, callback){
+	this.kill = function(queueId, callback){
+		// console.log('kill request recieved. (queueId = '+queueId+')');
 		new Promise(function(rlv){rlv();})
 			.then(function(){ return new Promise(function(rlv, rjt){
 				// まず、 queue から削除。
 				// まだ順番待ちなら true が返ってくる。
-				queue.remove(queueItemId);
+				queue.remove(queueId);
 				rlv();
 			}); })
 			.then(function(){ return new Promise(function(rlv, rjt){
 				// preprocess() が実行したかもしれない処理を kill してもらう。
-				// どの queueItemId をどう停止させるかは、 preprocess() 側で管理してもらう。
+				// どの queueId をどう停止させるかは、 preprocess() 側で管理してもらう。
 				// 実行している内容が別のプロセスであるとは限らないので、停止の手段がkillコマンドであるとは限らない。
 				// かつ、まだ実行されていないかもしれない。
-				prekill(addQueueItemLog[queueItemId], function(cmd){
+				prekill(addQueueItemLog[queueId], function(cmd){
 					rlv();
 				});
 			}); })
 			.then(function(){ return new Promise(function(rlv, rjt){
 
-				if(!pids[queueItemId]){
+				if(!pids[queueId]){
 					// pidが関連づいていなければ、
 					// プロセスは存在しないものとみなしてスキップする
 					rlv();
@@ -382,25 +383,27 @@ module.exports = function(config){
 				}
 
 				// kill コマンドを発行
-				var pid = pids[queueItemId];
-				var killCommand = ['kill', pid];
+				var pid = pids[queueId];
+				var cmdAry = ['kill', pid];
 				if( require('fs').realpathSync('/') != '/' ){
 					// windows では taskkill コマンド
-					killCommand = ['taskkill', '/pid', pid];
+					cmdAry = ['taskkill', '/pid', pid];
 				}
+				// console.log('kill process (queueId = '+queueId+', pid = '+pid+')');
+				var killCommand = cmdAry.shift();
 				var proc = require('child_process').spawn(killCommand, cmdAry);
 				proc.stdout.on('data', function(text){
-					console.log(text);
+					// console.log(text);
 				});
 				proc.stderr.on('data', function(text){
-					console.error(text);
+					// console.error(text);
 				});
 				proc.on('close', function(code){
-					console.info(code);
+					// console.info(code);
 
 					// killし終わったら pidを忘れる
-					pids[queueItemId] = undefined;
-					delete(pids[queueItemId]);
+					pids[queueId] = undefined;
+					delete(pids[queueId]);
 					rlv();
 				});
 				return;
@@ -409,8 +412,8 @@ module.exports = function(config){
 			.then(function(){ return new Promise(function(rlv, rjt){
 
 				// queue のリストからも忘れる
-				addQueueItemLog[queueItemId] = undefined;
-				delete(addQueueItemLog[queueItemId]);
+				addQueueItemLog[queueId] = undefined;
+				delete(addQueueItemLog[queueId]);
 
 				rlv();
 				return;
@@ -421,11 +424,12 @@ module.exports = function(config){
 					{
 						"command": "kill_queue_item",
 						'queueItemInfo': {
-							'id': queueItemId
+							'id': queueId
 						}
 					},
 					function(){}
 				);
+				// console.log('kill queueId = '+queueId+' done.');
 				callback(true); // gpiBridgeの完了を待たず返す
 
 			}); })

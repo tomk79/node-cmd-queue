@@ -92,10 +92,10 @@ window.CmdQueue = function(options){
 	/**
 	 * コマンド停止要求を送信する
 	 */
-	this.killQueueItem = function(queueItemId){
+	this.killQueueItem = function(queueId){
 		gpiBridge({
 			'command': 'kill_queue_item',
-			'queueItemId': queueItemId
+			'queueId': queueId
 		}, function(result){
 			console.log('kill result...: ', result);
 		});

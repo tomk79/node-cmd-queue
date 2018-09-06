@@ -26,6 +26,7 @@ module.exports = function(commandQueue, elm, options){
 	 * 新しい行を書き込む
 	 */
 	this.write = function(message){
+		console.log(message);
 		if( !commandQueue.isMessageMatchTerminalConditions({'queueId': options.queueId, 'tags':options.tags}, message) ){
 			return;
 		}
@@ -40,7 +41,7 @@ module.exports = function(commandQueue, elm, options){
 		}
 
 		if(message.command == 'open'){
-			appendNewRow('open', message.data);
+			appendNewRow('open', message);
 			appendNewRow('row');
 			if(isDoScrollEnd){
 				scrollEnd();
@@ -48,7 +49,7 @@ module.exports = function(commandQueue, elm, options){
 			return;
 		}
 		if(message.command == 'close'){
-			appendNewRow('close', message.data);
+			appendNewRow('close', message);
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
@@ -58,14 +59,16 @@ module.exports = function(commandQueue, elm, options){
 
 		var dataAry = message.data;
 
-		for(var i = 0; i < dataAry.length; i ++){
-			var row = dataAry[i];
-			if( row.match(/^(?:\r\n|\n)$/) ){
-				appendNewRow();
-			}else if( row.match(/^\r$/) ){
-				removeNewestRow();
-			}else{
-				writeToNewestRow(row);
+		if(dataAry && dataAry.length){
+			for(var i = 0; i < dataAry.length; i ++){
+				var row = dataAry[i];
+				if( row.match(/^(?:\r\n|\n)$/) ){
+					appendNewRow();
+				}else if( row.match(/^\r$/) ){
+					removeNewestRow();
+				}else{
+					writeToNewestRow(row);
+				}
 			}
 		}
 
@@ -79,7 +82,7 @@ module.exports = function(commandQueue, elm, options){
 	/**
 	 * 新しい行を追加する
 	 */
-	function appendNewRow(type, row){
+	function appendNewRow(type, message){
 		type = type || 'row';
 		var $row = $('<div>')
 			.addClass('cmd-queue__row');
@@ -90,11 +93,24 @@ module.exports = function(commandQueue, elm, options){
 
 		if(type == 'open'){
 			$row.addClass('cmd-queue__'+type);
-			$row.text(row);
+			$row.attr('data-queue-id', message.queueItemInfo.id);
+			$row.append( $('<div>').text(message.data) );
+			$row.append( $('<div>').append(
+				$('<button>')
+					.text('kill')
+					.attr('data-queue-id', message.queueItemInfo.id)
+					.on('click', function(){
+						$this = $(this);
+						var queueId = $this.attr('data-queue-id');
+						// alert('kill this.' + queueId);
+						commandQueue.killQueueItem(queueId);
+						$this.attr('disabled', 'disabled');
+					})
+			) );
 		}else if(type == 'close'){
 			$row.addClass('cmd-queue__'+type);
-			var status = row;
-			row = '---- command closed width status '+JSON.stringify(status)+' ----';
+			var status = message.data;
+			var row = '---- command closed width status '+JSON.stringify(status)+' ----';
 			if( status !== 0 ){
 				$row.addClass('cmd-queue__err');
 			}
@@ -137,7 +153,7 @@ module.exports = function(commandQueue, elm, options){
 		var $rows = $console.find('>div.cmd-queue__row');
 		while(1){
 			var memoryLineSize = $rows.length;
-			if(memoryLineSize <= memoryLineSizeLimit){
+			if( memoryLineSize <= memoryLineSizeLimit ){
 				break;
 			}
 			$console.find('>div.cmd-queue__row').get(0).remove();
