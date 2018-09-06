@@ -17,7 +17,7 @@ module.exports = function(config){
 	var gpiBridge = config.gpiBridge||function(){};
 	var outputLog = [];
 	var addQueueItemLog = {};
-	var maxOutputLogMessageCount = 100;
+	var maxOutputLogMessageCount = 50;
 	var pids = {};
 
 	var it79 = require('iterate79'),

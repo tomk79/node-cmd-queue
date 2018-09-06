@@ -12494,7 +12494,7 @@ module.exports = function(commandQueue){
 module.exports = function(commandQueue, elm, options){
 	var $ = require('jquery');
 	var $elm = $(elm);
-	var memoryLineSizeLimit = 1000; // 表示する最大行数
+	var memoryLineSizeLimit = 500; // 表示する最大行数
 	var _this = this;
 	options = options || {};
 	options.queueId = options.queueId || null;
@@ -12540,6 +12540,7 @@ module.exports = function(commandQueue, elm, options){
 		}
 		if(message.command == 'close'){
 			appendNewRow('close', message);
+			$('[data-queue-id='+message.queueItemInfo.id+'] .cmd-queue__open-status').text('done');
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
@@ -12584,8 +12585,8 @@ module.exports = function(commandQueue, elm, options){
 		if(type == 'open'){
 			$row.addClass('cmd-queue__'+type);
 			$row.attr('data-queue-id', message.queueItemInfo.id);
-			$row.append( $('<div>').text(message.data) );
-			$row.append( $('<div>').append(
+			$row.append( $('<div>').addClass('cmd-queue__'+type+'-label').text(message.data) );
+			$row.append( $('<div>').addClass('cmd-queue__'+type+'-status').append(
 				$('<button>')
 					.text('kill')
 					.attr('data-queue-id', message.queueItemInfo.id)

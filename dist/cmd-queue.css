@@ -10,9 +10,19 @@
     .cmd-queue__row:hover {
       background-color: #f3f3f3; }
   .cmd-queue__open {
-    font-weight: bold;
-    color: #000;
-    border-top: 1px solid #999; }
+    border-top: 1px solid #999;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex; }
+    .cmd-queue__open-label {
+      font-weight: bold;
+      color: #000;
+      width: 70%; }
+      .cmd-queue__open-label::before {
+        content: "$ "; }
+    .cmd-queue__open-status {
+      width: 30%;
+      text-align: right; }
   .cmd-queue__close {
     color: #000;
     text-align: center;
