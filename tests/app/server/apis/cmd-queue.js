@@ -36,6 +36,19 @@ module.exports = function(opts){
 			callback(cmd);
 			return;
 		},
+		'prekill': function(cmd, callback){
+			// killコマンドの前にコールされる。
+			// preprocess() が実行したqueueがあれば、ここで停止させる。
+			// console.log(cmd);
+			if( cmd.command[0] == 'preprocess_test' ){
+				cmd.stdout('Kill -> This is NOT a command.');
+				cmd.stdout("\n");
+				callback(false);
+				return;
+			}
+			callback(cmd);
+			return;
+		},
 		'gpiBridge': function(message, done){
 			// サーバーからクライアントへのメッセージ送信を仲介
 			opts.socketIo.emit('command-queue-message', message);

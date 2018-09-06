@@ -29,7 +29,7 @@ window.CmdQueue = function(options){
 	 * 端末にメッセージを送信する
 	 */
 	this.sendToTerminals = function(message){
-		if(message.command == 'open' || message.command == 'close' || message.command == 'add_queue_item'){
+		if(message.command == 'open' || message.command == 'close' || message.command == 'add_queue_item' || message.command == 'kill_queue_item'){
 			queueItemCallbacks.trigger(message);
 			for(var idx in terminals){
 				terminals[idx].write(message);
@@ -88,6 +88,19 @@ window.CmdQueue = function(options){
 
 		return;
 	} // addQueueItem()
+
+	/**
+	 * コマンド停止要求を送信する
+	 */
+	this.killQueueItem = function(queueItemId){
+		gpiBridge({
+			'command': 'kill_queue_item',
+			'queueItemId': queueItemId
+		}, function(result){
+			console.log('kill result...: ', result);
+		});
+		return;
+	} // killQueueItem()
 
 	/**
 	 * サーバー上から標準出力履歴を取得する

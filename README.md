@@ -41,6 +41,13 @@ var cmdQueue = new CmdQueue({
 		callback(cmd);
 		return;
 	},
+	'prekill': function(cmd, callback){
+		// killコマンドの前にコールされる。
+		// preprocess() が実行したqueueがあれば、ここで停止させる。
+		// console.log(cmd);
+		callback(cmd);
+		return;
+	},
 	'gpiBridge': function(message, done){
 		// サーバーからクライアントへのメッセージ送信を仲介
 		io.emit('cmd-queue-message', message);
@@ -184,12 +191,13 @@ cmdQueue.addQueueItem(
 
 ## 更新履歴 - Change log
 
-### cmd-queue@0.1.1 (2017-??-??)
+### cmd-queue@0.1.1 (リリース日未定)
 
 - `cmdQueue.addQueueItem()` に、オプション `open`, `stdout`, `stderr`, `close` を追加。
 - メッセージを条件チェックする `cmdQueue.isMessageMatchTerminalConditions()` を追加。
 - `cmdQueue.getOutputLog()` の第1引数に条件を受け取るように変更。
 - アプリケーションの拡張項目 `extra` を利用できるようになった。
+- 実行中、または実行待ちのキューを停止させることができるようになった。
 
 ### cmd-queue@0.1.0 (2017-10-16)
 

@@ -7,6 +7,7 @@ module.exports = function(commandQueue, message, callback){
 
 	switch(message.command){
 		case 'add_queue_item':
+		case 'kill_queue_item':
 		case 'open':
 		case 'stdout':
 		case 'stderr':

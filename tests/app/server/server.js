@@ -21,7 +21,7 @@ app.use( '/apis/cmdQueue', require('./apis/cmd-queue.js')({
 	socketIo: io
 }) );
 
-// 3000番ポートでLISTEN状態にする
-server.listen( 3000, function(){
+// 8080番ポートでLISTEN状態にする
+server.listen( 8080, function(){
 	console.log('server-standby');
 } );
