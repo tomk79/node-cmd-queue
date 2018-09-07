@@ -314,11 +314,16 @@ module.exports = function(config){
 		options.stdout = options.stdout || function(){};
 		options.stderr = options.stderr || function(){};
 		options.complete = options.complete || function(){};
+		options.queueItemInfo = options.queueItemInfo || {};
+		var queueId = options.queueItemInfo.id;
 
 		preprocess(
 			options,
 			function(options){
 				if(options === false){
+					if( queueId && addQueueItemLog[queueId] ){
+						addQueueItemLog[queueId] = undefined; delete(addQueueItemLog[queueId]);
+					}
 					return;
 				}
 				var cmdAry = options.command || null;
@@ -342,7 +347,7 @@ module.exports = function(config){
 				}
 
 				var proc = require('child_process').spawn(cmd, cmdAry);
-				_this.setPid(options.queueItemInfo.id, proc.pid); // process ID を記憶する
+				_this.setPid(queueId, proc.pid); // process ID を記憶する
 				proc.stdout.on('data', function(text){
 					options.stdout(text);
 				});
@@ -350,7 +355,7 @@ module.exports = function(config){
 					options.stderr(text);
 				});
 				proc.on('close', function(code){
-					addQueueItemLog[options.queueItemInfo.id] = undefined; delete(addQueueItemLog[options.queueItemInfo.id]);
+					addQueueItemLog[queueId] = undefined; delete(addQueueItemLog[queueId]);
 					options.complete(code);
 				});
 
