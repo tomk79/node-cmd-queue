@@ -260,6 +260,7 @@ module.exports = function(config){
 			var queueId = queue.push(params);
 
 			addQueueItemLog[queueId] = params;
+
 			gpiBridge(
 				{
 					"command": "add_queue_item",
@@ -294,6 +295,14 @@ module.exports = function(config){
 			rtn.push(addQueueItemLog[idx]);
 		}
 		return rtn;
+	}
+
+	/**
+	 * PID(Process ID) を登録する
+	 */
+	this.setPid = function(queueId, pid){
+		pids[queueId] = pid;
+		return true;
 	}
 
 	/**
@@ -333,7 +342,7 @@ module.exports = function(config){
 				}
 
 				var proc = require('child_process').spawn(cmd, cmdAry);
-				pids[options.queueItemInfo.id] = proc.pid;
+				_this.setPid(options.queueItemInfo.id, proc.pid); // process ID を記憶する
 				proc.stdout.on('data', function(text){
 					options.stdout(text);
 				});

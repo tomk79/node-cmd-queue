@@ -32,6 +32,22 @@ module.exports = function(opts){
 					}, 2000);
 				}, 2000);
 				return;
+			}else if( cmd.command[0] == 'custom_sleep' ){
+				cmd.stdout('This is a custom command.');
+				cmd.stdout("\n");
+				var proc = require('child_process').spawn('sleep', [10]);
+				commandQueue.setPid(cmd.queueItemInfo.id, proc.pid); // process ID を記憶する
+				proc.stdout.on('data', function(text){
+					cmd.stdout(text);
+				});
+				proc.stderr.on('data', function(text){
+					cmd.stderr(text);
+				});
+				proc.on('close', function(code){
+					cmd.complete(code);
+					callback(false);
+				});
+				return;
 			}
 			callback(cmd);
 			return;
