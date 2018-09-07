@@ -144,9 +144,9 @@ module.exports = function(commandQueue, elm, options){
 		// 該当する queueId の unit を探す。なければ作られる。
 		var $targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
 
-		var $rows = $targetConsole.find('>div.cmd-queue__row');
+		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
-		$targetConsole.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<br />') );
+		$targetConsole.find('.cmd-queue__row').eq(memoryLineSize-1).append( $('<br />') );
 		// console.log(message);
 
 		if(type == 'open'){
@@ -171,7 +171,7 @@ module.exports = function(commandQueue, elm, options){
 		// 該当する queueId の unit を探す。なければ作られる。
 		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
 
-		var $rows = $targetConsole.find('>div.cmd-queue__row');
+		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
 		try {
 			$rows.get(memoryLineSize-1).remove();
@@ -189,9 +189,9 @@ module.exports = function(commandQueue, elm, options){
 		// 該当する queueId の unit を探す。なければ作られる。
 		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
 
-		var $rows = $targetConsole.find('>div.cmd-queue__row');
+		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
-		$targetConsole.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
+		$targetConsole.find('.cmd-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
 		return;
 	}
 
@@ -200,16 +200,20 @@ module.exports = function(commandQueue, elm, options){
 	 */
 	function removeOldRow(){
 		while(1){
-			var $rows = $console.find('>div.cmd-queue__row');
+			var $rows = $console.find('.cmd-queue__row');
 			var memoryLineSize = $rows.length;
 			if( memoryLineSize <= memoryLineSizeLimit ){
 				break;
 			}
-			var $targetelm = $console.find('>div.cmd-queue__row').get(0);
-			if($targetelm){
+			var $oldestUnitRow = $console.find('.cmd-queue__unit').eq(0).find('.cmd-queue__unit-console .cmd-queue__row');
+			var $targetelm;
+			if($oldestUnitRow.length){
+				$targetelm = $oldestUnitRow.get(0);
 				$targetelm.remove();
-			}else{
-				break;
+				if( !$console.find('.cmd-queue__unit').eq(0).find('.cmd-queue__unit-console .cmd-queue__row').length ){
+					$console.find('.cmd-queue__unit').get(0).remove();
+				}
+				continue;;
 			}
 		}
 		return;
