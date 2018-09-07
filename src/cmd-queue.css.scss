@@ -5,16 +5,11 @@
 	min-height: 200px;
 	background-color: #f9f9f9;
 
-	&__row{
-		white-space: pre;
-		color: #666;
-		&:hover{
-			background-color: #f3f3f3;
-		}
-	}
-	&__open{
+	&__unit{
 		border-top: 1px solid #999;
-		display: flex;
+		&-header{
+			display: flex;
+		}
 		&-label{
 			font-weight: bold;
 			color: #000;
@@ -26,6 +21,16 @@
 		&-status{
 			width: 30%;
 			text-align: right;
+		}
+		&-console{
+			display: block;
+		}
+	}
+	&__row{
+		white-space: pre;
+		color: #666;
+		&:hover{
+			background-color: #f3f3f3;
 		}
 	}
 	&__close{

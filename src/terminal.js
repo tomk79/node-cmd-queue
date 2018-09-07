@@ -33,7 +33,9 @@ module.exports = function(commandQueue, elm, options){
 		var isDoScrollEnd = isScrollEnd();
 
 		if(message.command == 'add_queue_item'){
-			console.log('add_queue_item message', message);//TODO: 端末に処理待ちの行を追加する予定
+			// console.log('add_queue_item message', message);
+			$queue_unit = this.queueUnitConsole(message.queueItemInfo.id, message.data);//キュー単位のまとまりを生成する
+
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
@@ -42,7 +44,7 @@ module.exports = function(commandQueue, elm, options){
 
 		if(message.command == 'open'){
 			appendNewRow('open', message);
-			appendNewRow('row');
+			appendNewRow('row', message);
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
@@ -50,7 +52,7 @@ module.exports = function(commandQueue, elm, options){
 		}
 		if(message.command == 'close'){
 			appendNewRow('close', message);
-			$('[data-queue-id='+message.queueItemInfo.id+'] .cmd-queue__open-status').text('done');
+			$('[data-queue-id='+message.queueItemInfo.id+'] .cmd-queue__unit-status').text('done');
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
@@ -64,11 +66,11 @@ module.exports = function(commandQueue, elm, options){
 			for(var i = 0; i < dataAry.length; i ++){
 				var row = dataAry[i];
 				if( row.match(/^(?:\r\n|\n)$/) ){
-					appendNewRow();
+					appendNewRow('row', message);
 				}else if( row.match(/^\r$/) ){
-					removeNewestRow();
+					removeNewestRow(message);
 				}else{
-					writeToNewestRow(row);
+					writeToNewestRow(row, message);
 				}
 			}
 		}
@@ -81,34 +83,62 @@ module.exports = function(commandQueue, elm, options){
 	}
 
 	/**
+	 * ターミナルに queue unit を追加する
+	 */
+	this.queueUnitConsole = function(queueId, label){
+		if( !queueId ){
+			return false;
+		}
+		var $queue_unit = $console.find('[data-queue-id='+queueId+']');
+		if($queue_unit.length){
+			return $queue_unit.eq(0).find('.cmd-queue__unit-console');
+		}
+
+		if(!label){
+			label = 'Untitled';
+		}
+		var $queue_unit = $('<div>')
+			.addClass('cmd-queue__unit');
+		$queue_unit.attr('data-queue-id', queueId);
+		$queue_unit.append(
+			$('<div>').addClass('cmd-queue__unit-header')
+				.append( $('<div>').addClass('cmd-queue__unit-label').text(label) )
+				.append( $('<div>').addClass('cmd-queue__unit-status').append(
+					$('<button>')
+						.text('kill')
+						.attr('data-queue-id', queueId)
+						.on('click', function(){
+							$this = $(this);
+							var queueId = $this.attr('data-queue-id');
+							// alert('kill this.' + queueId);
+							commandQueue.killQueueItem(queueId);
+							$this.attr('disabled', 'disabled');
+						})
+				) )
+		);
+		$queue_unit.append( $('<div>').addClass('cmd-queue__unit-console') );
+		$console.append($queue_unit);
+		return $queue_unit.find('.cmd-queue__unit-console');
+	}
+
+	/**
 	 * 新しい行を追加する
 	 */
 	function appendNewRow(type, message){
+		// console.log(message);
 		type = type || 'row';
 		var $row = $('<div>')
 			.addClass('cmd-queue__row');
 
-		var $rows = $console.find('>div.cmd-queue__row');
+		// 該当する queueId の unit を探す。なければ作られる。
+		var $targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+
+		var $rows = $targetConsole.find('>div.cmd-queue__row');
 		var memoryLineSize = $rows.length;
-		$console.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<br />') );
+		$targetConsole.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<br />') );
 		// console.log(message);
 
 		if(type == 'open'){
-			$row.addClass('cmd-queue__'+type);
-			$row.attr('data-queue-id', message.queueItemInfo.id);
-			$row.append( $('<div>').addClass('cmd-queue__'+type+'-label').text(message.data) );
-			$row.append( $('<div>').addClass('cmd-queue__'+type+'-status').append(
-				$('<button>')
-					.text('kill')
-					.attr('data-queue-id', message.queueItemInfo.id)
-					.on('click', function(){
-						$this = $(this);
-						var queueId = $this.attr('data-queue-id');
-						// alert('kill this.' + queueId);
-						commandQueue.killQueueItem(queueId);
-						$this.attr('disabled', 'disabled');
-					})
-			) );
 		}else if(type == 'close'){
 			$row.addClass('cmd-queue__'+type);
 			var status = message.data;
@@ -119,32 +149,38 @@ module.exports = function(commandQueue, elm, options){
 			$row.text(row);
 		}
 
-		$console.append($row);
+		$targetConsole.append($row);
 		return;
 	}
 
 	/**
 	 * 最も新しい行を削除する
 	 */
-	function removeNewestRow(){
-		var $rows = $console.find('>div.cmd-queue__row');
+	function removeNewestRow(message){
+		// 該当する queueId の unit を探す。なければ作られる。
+		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+
+		var $rows = $targetConsole.find('>div.cmd-queue__row');
 		var memoryLineSize = $rows.length;
 		try {
 			$rows.get(memoryLineSize-1).remove();
 			$rows.eq(memoryLineSize-2).find('br').remove();
 		} catch (e) {
 		}
-		appendNewRow();
+		appendNewRow('row', message);
 		return;
 	}
 
 	/**
 	 * 最も新しい行に追記する
 	 */
-	function writeToNewestRow(text){
-		var $rows = $console.find('>div.cmd-queue__row');
+	function writeToNewestRow(text, message){
+		// 該当する queueId の unit を探す。なければ作られる。
+		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+
+		var $rows = $targetConsole.find('>div.cmd-queue__row');
 		var memoryLineSize = $rows.length;
-		$console.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
+		$targetConsole.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<span>').text(text) );
 		return;
 	}
 
