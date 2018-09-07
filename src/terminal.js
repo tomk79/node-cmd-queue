@@ -26,7 +26,7 @@ module.exports = function(commandQueue, elm, options){
 	 * 新しい行を書き込む
 	 */
 	this.write = function(message){
-		console.log(message);
+		// console.log(message);
 		if( !commandQueue.isMessageMatchTerminalConditions({'queueId': options.queueId, 'tags':options.tags}, message) ){
 			return;
 		}
@@ -91,6 +91,7 @@ module.exports = function(commandQueue, elm, options){
 		var $rows = $console.find('>div.cmd-queue__row');
 		var memoryLineSize = $rows.length;
 		$console.find('>div.cmd-queue__row').eq(memoryLineSize-1).append( $('<br />') );
+		// console.log(message);
 
 		if(type == 'open'){
 			$row.addClass('cmd-queue__'+type);
