@@ -4,7 +4,7 @@
 module.exports = function(commandQueue, elm, options){
 	var $ = require('jquery');
 	var $elm = $(elm);
-	var memoryLineSizeLimit = 500; // 表示する最大行数
+	var memoryLineSizeLimit = 1000; // 表示する最大行数
 	var _this = this;
 	options = options || {};
 	options.queueId = options.queueId || null;
@@ -151,13 +151,18 @@ module.exports = function(commandQueue, elm, options){
 	 * 古い行を削除する
 	 */
 	function removeOldRow(){
-		var $rows = $console.find('>div.cmd-queue__row');
 		while(1){
+			var $rows = $console.find('>div.cmd-queue__row');
 			var memoryLineSize = $rows.length;
 			if( memoryLineSize <= memoryLineSizeLimit ){
 				break;
 			}
-			$console.find('>div.cmd-queue__row').get(0).remove();
+			var $targetelm = $console.find('>div.cmd-queue__row').get(0);
+			if($targetelm){
+				$targetelm.remove();
+			}else{
+				break;
+			}
 		}
 		return;
 	}

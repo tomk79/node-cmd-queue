@@ -96,8 +96,8 @@ window.CmdQueue = function(options){
 		gpiBridge({
 			'command': 'kill_queue_item',
 			'queueId': queueId
-		}, function(result){
-			console.log('kill result...: ', result);
+		}, function(){
+			// console.log('kill result...: ', result);
 		});
 		return;
 	} // killQueueItem()
