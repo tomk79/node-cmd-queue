@@ -12540,9 +12540,20 @@ module.exports = function(commandQueue, elm, options){
 			}
 			return;
 		}
+		if(message.command == 'kill_queue_item'){
+			var $queue_unit = $console.find('[data-queue-id='+message.queueItemInfo.id+']');
+			if($queue_unit.length){
+				$queue_unit.find('.cmd-queue__unit-status').text('Canceled');
+			}
+
+			if(isDoScrollEnd){
+				scrollEnd();
+			}
+			return;
+		}
 		if(message.command == 'close'){
 			appendNewRow('close', message);
-			$('[data-queue-id='+message.queueItemInfo.id+'] .cmd-queue__unit-status').text('done');
+			$('[data-queue-id='+message.queueItemInfo.id+'] .cmd-queue__unit-status').text('Done');
 			if(isDoScrollEnd){
 				scrollEnd();
 			}
