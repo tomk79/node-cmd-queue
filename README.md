@@ -197,6 +197,7 @@ cmdQueue.addQueueItem(
 - メッセージを条件チェックする `cmdQueue.isMessageMatchTerminalConditions()` を追加。
 - `cmdQueue.getOutputLog()` の第1引数に条件を受け取るように変更。
 - アプリケーションの拡張項目 `extra` を利用できるようになった。
+- ターミナルに、オプション `write()` を追加。
 - 実行待ちのプロセスがターミナルに表示されるようになった。
 - 実行中、または実行待ちのキューを停止させることができるようになった。
 

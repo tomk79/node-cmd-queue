@@ -1,4 +1,9 @@
-var terminal = cmdQueue.createTerminal( document.getElementById('finder1') );
+cmdQueue.createTerminal( document.getElementById('finder1') );
+cmdQueue.createTerminal( null, {
+    write: function(message){
+        console.info(message);
+    }
+} );
 // console.log(cmdQueue);
 
 function createNewTerminal(tags){

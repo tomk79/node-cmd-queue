@@ -12492,18 +12492,24 @@ module.exports = function(commandQueue){
  * cmd-queue - terminal.js
  */
 module.exports = function(commandQueue, elm, options){
-	var $ = require('jquery');
-	var $elm = $(elm);
-	var memoryLineSizeLimit = 1000; // 表示する最大行数
 	var _this = this;
+	var $ = require('jquery');
+	var $elm = false;
+	var $console = false;
+	var memoryLineSizeLimit = 1000; // 表示する最大行数
 	options = options || {};
 	options.queueId = options.queueId || null;
 	options.tags = options.tags || [];
+	options.write = options.write || function(){};
 
-	$elm.addClass('cmd-queue');
-	$elm.append('<div class="cmd-queue__console">');
+	if(elm){
+		$elm = $(elm);
 
-	var $console = $(elm).find('>.cmd-queue__console');
+		$elm.addClass('cmd-queue');
+		$elm.append('<div class="cmd-queue__console">');
+
+		$console = $(elm).find('>.cmd-queue__console');
+	}
 
 	commandQueue.getOutputLog({'queueId': options.queueId, 'tags':options.tags}, function(messages){
 		// console.log(messages);
@@ -12522,9 +12528,18 @@ module.exports = function(commandQueue, elm, options){
 		}
 		var isDoScrollEnd = isScrollEnd();
 
+		// 呼び出し側に同じメッセージを転送する
+		options.write(message);
+
+		if( !$elm ){
+			// $elmが指定されない場合、
+			// ターミナル画面を処理しない。
+			return;
+		}
+
 		if(message.command == 'add_queue_item'){
 			// console.log('add_queue_item message', message);
-			$queue_unit = this.queueUnitConsole(message.queueItemInfo.id, message.data);//キュー単位のまとまりを生成する
+			$queue_unit = queueUnitConsole(message.queueItemInfo.id, message.data);//キュー単位のまとまりを生成する
 
 			if(isDoScrollEnd){
 				scrollEnd();
@@ -12586,7 +12601,7 @@ module.exports = function(commandQueue, elm, options){
 	/**
 	 * ターミナルに queue unit を追加する
 	 */
-	this.queueUnitConsole = function(queueId, label){
+	function queueUnitConsole(queueId, label){
 		if( !queueId ){
 			return false;
 		}
@@ -12632,7 +12647,7 @@ module.exports = function(commandQueue, elm, options){
 			.addClass('cmd-queue__row');
 
 		// 該当する queueId の unit を探す。なければ作られる。
-		var $targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+		var $targetConsole = queueUnitConsole(message.queueItemInfo.id, message.data);
 
 		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
@@ -12659,7 +12674,7 @@ module.exports = function(commandQueue, elm, options){
 	 */
 	function removeNewestRow(message){
 		// 該当する queueId の unit を探す。なければ作られる。
-		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+		$targetConsole = queueUnitConsole(message.queueItemInfo.id, message.data);
 
 		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
@@ -12677,7 +12692,7 @@ module.exports = function(commandQueue, elm, options){
 	 */
 	function writeToNewestRow(text, message){
 		// 該当する queueId の unit を探す。なければ作られる。
-		$targetConsole = _this.queueUnitConsole(message.queueItemInfo.id, message.data);
+		$targetConsole = queueUnitConsole(message.queueItemInfo.id, message.data);
 
 		var $rows = $targetConsole.find('.cmd-queue__row');
 		var memoryLineSize = $rows.length;
