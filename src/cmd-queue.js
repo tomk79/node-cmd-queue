@@ -76,14 +76,16 @@ window.CmdQueue = function(options){
 
 		var queueItemCallbackId = queueItemCallbacks.addListener(options);
 
-		gpiBridge({
-			'command': 'add_queue_item',
-			'cmd': cmd,
-			'cdName': cdName,
-			'tags': tags,
-			'queueItemCallbackId': queueItemCallbackId
-		}, function(queueId){
-			accept(queueId);
+		new Promise(function(resolve, reject) {
+			gpiBridge({
+				'command': 'add_queue_item',
+				'cmd': cmd,
+				'cdName': cdName,
+				'tags': tags,
+				'queueItemCallbackId': queueItemCallbackId
+			}, function(queueId){
+				accept(queueId);
+			});
 		});
 
 		return;
@@ -93,11 +95,13 @@ window.CmdQueue = function(options){
 	 * コマンド停止要求を送信する
 	 */
 	this.killQueueItem = function(queueId){
-		gpiBridge({
-			'command': 'kill_queue_item',
-			'queueId': queueId
-		}, function(){
-			// console.log('kill result...: ', result);
+		new Promise(function(resolve, reject) {
+			gpiBridge({
+				'command': 'kill_queue_item',
+				'queueId': queueId
+			}, function(){
+				// console.log('kill result...: ', result);
+			});
 		});
 		return;
 	} // killQueueItem()
@@ -107,17 +111,19 @@ window.CmdQueue = function(options){
 	 */
 	this.getOutputLog = function(cond, callback){
 		callback = callback || function(){};
-		gpiBridge({
-			'command': 'get_output_log'
-		}, function(messages){
-			var rtn = [];
-			for(var idx in messages){
-				if(!_this.isMessageMatchTerminalConditions(cond, messages[idx])){
-					continue;
+		new Promise(function(resolve, reject) {
+			gpiBridge({
+				'command': 'get_output_log'
+			}, function(messages){
+				var rtn = [];
+				for(var idx in messages){
+					if(!_this.isMessageMatchTerminalConditions(cond, messages[idx])){
+						continue;
+					}
+					rtn.push(messages[idx]);
 				}
-				rtn.push(messages[idx]);
-			}
-			callback(rtn);
+				callback(rtn);
+			});
 		});
 		return;
 	}
