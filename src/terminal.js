@@ -23,9 +23,11 @@ module.exports = function(commandQueue, elm, options){
 
 	commandQueue.getOutputLog({'queueId': options.queueId, 'tags':options.tags}, function(messages){
 		// console.log(messages);
-		for(var idx in messages){
-			_this.write(messages[idx]);
-		}
+		setTimeout(function(){ // GPIが非同期のとき、setTimeout() しないと _this.write() を呼びだせずに落ちる。
+			for(var idx in messages){
+				_this.write(messages[idx]);
+			}
+		}, 0);
 	});
 
 	/**
