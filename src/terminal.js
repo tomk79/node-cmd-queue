@@ -11,6 +11,7 @@ module.exports = function(commandQueue, elm, options){
 	options.queueId = options.queueId || null;
 	options.tags = options.tags || [];
 	options.write = options.write || function(){};
+	this.name = options.name || null;
 
 	if(elm){
 		$elm = $(elm);

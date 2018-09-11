@@ -1,6 +1,7 @@
 cmdQueue.createTerminal( document.getElementById('finder1') );
 cmdQueue.createTerminal( null, {
-    write: function(message){
+    'name': 'headlessTerminal',
+    'write': function(message){
         console.info(message);
     }
 } );
@@ -10,7 +11,8 @@ function createNewTerminal(tags){
     var $target = $('#subTerminal');
     var terminal = document.createElement('div');
     $target.html('').append(terminal);
-    var terminal1 = cmdQueue.createTerminal( terminal,{
+    cmdQueue.createTerminal( terminal,{
+        'name': 'newTerminal',
         'tags': tags
     } );
     $(terminal).addClass('terminal');
@@ -22,7 +24,8 @@ function createNewQueueIdTerminal(){
             var $target = $('#subTerminal');
             var terminal = document.createElement('div');
             $target.html('').append(terminal);
-            var terminal1 = cmdQueue.createTerminal( terminal,{
+            cmdQueue.createTerminal( terminal,{
+                'name': 'newTerminal',
                 'queueId': queueId
             } );
             $(terminal).addClass('terminal');

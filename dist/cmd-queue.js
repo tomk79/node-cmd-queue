@@ -12234,6 +12234,29 @@ window.CmdQueue = function(options){
 	}
 
 	/**
+	 * 端末オブジェクトを破壊する
+	 * オプション name が与えられた端末は破壊することができます。
+	 * このメソッドは、実際に破壊できた件数を返します。
+	 */
+	this.destroyTerminal = function(name){
+		// console.log('destroy: ', name);
+		if(typeof(name) !== typeof('')){return false;}
+		var idxs = [];
+		for(var i1 in terminals){
+			if(terminals[i1].name == name){
+				idxs.push(i1);
+			}
+		}
+		for(var i2 in idxs.reverse()){
+			var idx = Number(idxs[i2]);
+			terminals[idx] = undefined;
+			terminals.splice(idx, 1);//取り除いて捨てる
+		}
+		// console.log('destroied: ', idxs);
+		return idxs.length;
+	}
+
+	/**
 	 * 端末にメッセージを送信する
 	 */
 	this.sendToTerminals = function(message){
@@ -12507,6 +12530,7 @@ module.exports = function(commandQueue, elm, options){
 	options.queueId = options.queueId || null;
 	options.tags = options.tags || [];
 	options.write = options.write || function(){};
+	this.name = options.name || null;
 
 	if(elm){
 		$elm = $(elm);
