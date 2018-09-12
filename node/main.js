@@ -401,7 +401,7 @@ module.exports = function(config){
 				var cmdAry = ['kill', pid];
 				if( require('fs').realpathSync('/') != '/' ){
 					// windows では taskkill コマンド
-					cmdAry = ['taskkill', '/pid', pid];
+					cmdAry = ['taskkill', '/F', '/pid', pid]; // Windows では 強制(/F)しないと落ちてくれなかった
 				}
 				// console.log('kill process (queueId = '+queueId+', pid = '+pid+')');
 				var killCommand = cmdAry.shift();
